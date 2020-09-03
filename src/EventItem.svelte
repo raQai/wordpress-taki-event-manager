@@ -85,12 +85,12 @@
 </script>
 
 <style>
-  .biws__divider {
+  .divider {
     height: 1px;
     background-color: var(--taki-grey2);
   }
 
-  .biws__event_item {
+  .item {
     word-break: break-word;
     border-radius: var(--taki-border-radius);
     margin: 0.5rem 0 1rem 0;
@@ -105,25 +105,25 @@
     transition: box-shadow 0.25s, -webkit-box-shadow 0.25s;
   }
 
-  .biws__event_item:hover {
+  .item:hover {
     -webkit-box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.2),
       0 6px 20px 0 rgba(0, 0, 0, 0.19);
     box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.2),
       0 6px 20px 0 rgba(0, 0, 0, 0.19);
   }
 
-  .biws__event_item > * {
+  .item > * {
     padding: 1rem 4rem 2rem;
   }
 
-  .biws__event_spacer {
+  .spacer {
     width: 12rem;
     margin-left: -4rem;
     margin-right: 2rem;
     flex-shrink: 0;
   }
 
-  .biws__event_date {
+  .date_container {
     background-color: var(--taki-red);
     border-radius: 0 var(--taki-border-radius) var(--taki-border-radius) 0;
     -webkit-box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
@@ -140,143 +140,143 @@
     line-height: 2.5rem;
   }
 
-  .biws__event_planning {
+  .date_planning {
     font-size: 1rem;
   }
 
-  .biws__event_day {
+  .date_day {
     font-weight: bold;
   }
 
-  .biws__event_content {
+  .content {
     padding-bottom: 1rem;
   }
 
-  .biws__event_title {
+  .title {
     margin-top: 4rem;
     font-weight: 300;
     color: rgba(0, 0, 0, 0.8);
   }
 
-  .biws__event_info {
+  .info_container {
     flex-grow: 1;
   }
 
-  .biws__event_details {
+  .details_container {
     margin: 2rem 0;
   }
 
-  .biws__event_details > div {
+  .details_container > div {
     display: flex;
     margin-bottom: 1rem;
   }
 
-  .biws__event_details > div > * {
+  .details_container > div > * {
     padding-top: 0.4rem;
     display: block;
   }
 
-  .biws__event_details p {
+  .details_container p {
     margin-bottom: 1rem;
   }
 
-  .biws__event_details p:last-of-type {
+  .details_container p:last-of-type {
     margin-bottom: 0;
   }
 
-  .biws__event_details p span {
+  .details_container p span {
     display: inline-block;
     padding-right: 0.5rem;
   }
 
-  .biws__event_details svg {
+  .details_container svg {
     flex-shrink: 0;
     padding-right: 1rem;
   }
 
-  .biws__event_footer {
+  .footer {
     background-color: var(--taki-grey0);
     border-top: 1px solid var(--taki-grey1);
     border-radius: 0 0 var(--taki-border-radius) var(--taki-border-radius);
   }
 
-  .biws__event_contacts {
+  .contacts_container {
     display: block;
   }
 
-  .biws__contact_wrapper {
+  .contact_container {
     margin: 1rem;
     flex-shrink: 0;
     flex-grow: 1;
   }
 
-  .biws__contact_wrapper > * {
+  .contact_container > * {
     display: block;
   }
 
-  .biws__contact {
+  .contact {
     font-weight: bold;
   }
 
   @media (min-width: 900px) {
-    .biws__event_item > * {
+    .item > * {
       display: flex;
     }
 
-    .biws__event_date {
+    .date_container {
       margin-bottom: 0;
     }
 
-    .biws__event_date > * {
+    .date_container > * {
       display: block;
     }
 
-    .biws__event_day {
+    .date_day {
       font-size: 5rem;
       line-height: 5rem;
     }
 
-    .biws__event_contacts {
+    .contacts_container {
       display: flex;
       flex-wrap: wrap;
       width: 100%;
     }
 
-    .biws__event_info {
+    .info_container {
       margin-right: 10rem;
     }
 
-    .biws__event_contacts {
+    .contacts_container {
       margin: 0 9rem;
     }
   }
 </style>
 
-<div class="biws__event_item">
-  <div class="biws__event_content">
-    <div class="biws__event_spacer">
-      <div class="biws__event_date">
+<div class="item">
+  <div class="content">
+    <div class="spacer">
+      <div class="date_container">
         {#if dates(event)}
-          <span class="biws__event_day">{dates(event).start.getDate()}</span>
-          <span class="biws__event_month">
+          <span class="date_day">{dates(event).start.getDate()}</span>
+          <span class="date_month">
             {getShortMonthName(dates(event).start)}
           </span>
-        {:else}<span class="biws__event_planning">In Planung</span>{/if}
+        {:else}<span class="date_planning">In Planung</span>{/if}
       </div>
     </div>
-    <div class="biws__event_info">
-      <h3 class="biws__event_title">
+    <div class="info_container">
+      <h3 class="title">
         {@html event.title}
       </h3>
       {#if event.content}
-        <div class="biws__event_description">
+        <div class="description">
           {@html event.content}
         </div>
       {/if}
-      <div class="biws__divider" />
-      <div class="biws__event_details">
+      <div class="divider" />
+      <div class="details_container">
         {#if dates(event).start}
-          <div class="biws__event_details_item">
+          <div class="details_item">
             <svg style="width:3rem;height:2.5rem" viewBox="0 0 24 24">
               <path
                 fill="#888"
@@ -288,7 +288,7 @@
           </div>
         {/if}
         {#if times(event).start}
-          <div class="biws__event_details_item">
+          <div class="details_item">
             <svg style="width:3rem;height:2.5rem" viewBox="0 0 24 24">
               <path
                 fill="#888"
@@ -301,7 +301,7 @@
           </div>
         {/if}
         {#if event.biws__location_tax}
-          <div class="biws__event_details_item">
+          <div class="details_item">
             <svg style="width:3rem;height:2.5rem" viewBox="0 0 24 24">
               <path
                 fill="#888"
@@ -323,20 +323,20 @@
       </div>
     </div>
   </div>
-  <div class="biws__event_footer">
+  <div class="footer">
     {#if event.biws__contact_tax}
-      <div class="biws__event_contacts">
+      <div class="contacts_container">
         {#each event.biws__contact_tax as contact}
-          <div class="biws__contact_wrapper">
+          <div class="contact_container">
             {#if contact.name}
-              <span class="biws__contact">{contact.name}</span>
+              <span class="contact">{contact.name}</span>
             {/if}
             {#if contact.phone}
-              <span class="biws__tel">{contact.phone}</span>
+              <span class="tel">{contact.phone}</span>
             {/if}
             {#if contact.email}
               <a
-                class="biws__highlight"
+                class="highlight-text"
                 href="mail2"
                 use:lazyMail={{ href: 'mailto:' + contact.email }}>{contact.email}</a>
             {/if}
