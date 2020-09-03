@@ -1,5 +1,9 @@
 <script>
   import Events from "./Events.svelte";
+  export let params
 </script>
 
-<Events />
+<style>
+</style>
+
+<Events {params} />

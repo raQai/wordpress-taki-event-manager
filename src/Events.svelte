@@ -1,36 +1,74 @@
 <script context="module">
-  /*
   // TODO not necessary yet but should be implemented for
   // my own sake to learn it..
-  let events;
-
-  export async function preload({ params }) {
-    const response = await this.fetch(`${apiUrl}events`);
-    const json = await response.json();
-
-    events = json;
+  /*
+  export async function preload({ per_page = 0, page = 0 } = {}) {
+    const requestUrl = getRequestUrl({
+      per_page: per_page,
+      page: page,
+    });
+    const response = await fetch(requestUrl,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      }
+    ).catch((error) =>
+      console.error("Error:", error)
+    );
+    const data = await response.json();
+    return {
+      events: data,
+      numPages: response.headers.get("X-QP-TotalPages"),
+      totalEvents: response.headers.get("X-WP-Total"),
+    };
   }
   */
 </script>
 
 <script>
   import EventItem from "./EventItem.svelte";
+
   import { onMount } from "svelte";
 
-  const apiUrl = __eventsApp.env.API_URL;
+  export let params;
 
-  let events = [];
-  console.log(apiUrl);
+  let events = [],
+    pageData = {};
 
-  onMount(async () => {
-    const res = await fetch(`${apiUrl}biws__events`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    });
-    events = await res.json();
-  });
+  const apiUrl = __eventsApp.env.API_URL,
+    route = "biws__events",
+    getRequestUrl = ({ per_page = 0, page = 0 } = {}) => {
+      const url = `${apiUrl}${route || ""}`,
+        params = {
+          posts_per_page: per_page,
+          paged: page,
+        },
+        esc = encodeURIComponent,
+        query = Object.keys(params)
+          .filter((k) => params[k])
+          .map((k) => `${esc(k)}=${params[k]}`)
+          .join("&");
+      return `${url}${query ? `?${query}` : ""}`;
+    },
+    fetchEventsData = async ({ per_page = params.per_page, page = 1 } = {}) => {
+      const requestUrl = getRequestUrl({
+          per_page: params.per_page,
+          page: page,
+        }),
+        response = await fetch(requestUrl, {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        });
+      events = await response.json();
+      pageData.total = parseInt(response.headers.get("X-WP-TotalPages"));
+      pageData.active = page;
+    };
+
+  onMount(() => fetchEventsData({ per_page: params.per_page }));
 </script>
 
 <style>
@@ -44,11 +82,8 @@
 </style>
 
 {#if !events}
-  <p>Termine werden geladen</p>
-{:else}
-  {#each events as event}
-    {#if !event.content.protected}
-      <EventItem {event} />
-    {/if}
-  {/each}
+  <p>Termine werden geladen...</p>
 {/if}
+{#each events as event}
+  <EventItem {event} />
+{/each}
