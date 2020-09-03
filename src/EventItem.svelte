@@ -1,113 +1,98 @@
 <script>
   export let event;
-  let getWeekDayName = (date) =>
-    [
-      "Sonntag",
-      "Montag",
-      "Dienstag",
-      "Mittwoch",
-      "Donnerstag",
-      "Freitag",
-      "Samstag",
-      "Sonntag",
-    ][date.getDay()];
+  const getWeekDayName = (date) =>
+      [
+        "Sonntag",
+        "Montag",
+        "Dienstag",
+        "Mittwoch",
+        "Donnerstag",
+        "Freitag",
+        "Samstag",
+        "Sonntag",
+      ][date.getDay()],
+    getShortMonthName = (date) =>
+      [
+        "Jan",
+        "Feb",
+        "Mär",
+        "Apr",
+        "Mai",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Okt",
+        "Nov",
+        "Dez",
+      ][date.getMonth()],
+    getDateString = (date) =>
+      date
+        ? `${getWeekDayName(date)}, ${Intl.DateTimeFormat("de-DE").format(
+            date
+          )}`
+        : undefined,
+    getTimeString = (time) =>
+      time ? time.toString().replace(":", ".") : undefined,
+    getStartToEnd = (start, end) => `${start}${end ? ` - ${end}` : ""}`,
+    getStartToEndDate = (start, end) =>
+      getStartToEnd(getDateString(start), getDateString(end)),
+    getStartToEndTime = (start, end) =>
+      start
+        ? `${getStartToEnd(getTimeString(start), getTimeString(end))} Uhr`
+        : undefined,
+    dates = (event) => {
+      if (!event.biws__datetime_meta) {
+        return {};
+      }
 
-  let getShortMonthName = (date) =>
-    [
-      "Jan",
-      "Feb",
-      "Mär",
-      "Apr",
-      "Mai",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Okt",
-      "Nov",
-      "Dez",
-    ][date.getMonth()];
+      const startDate = event.biws__datetime_meta.datetime__start_date;
+      const endDate = event.biws__datetime_meta.datetime__end_date;
 
-  let getDateString = (date) =>
-    date
-      ? `${getWeekDayName(date)}, ${Intl.DateTimeFormat("de-DE").format(date)}`
-      : undefined;
-  let getTimeString = (time) =>
-    time ? time.toString().replace(":", ".") : undefined;
+      return {
+        start: startDate ? new Date(Date.parse(startDate)) : undefined,
+        end: endDate ? new Date(Date.parse(endDate)) : undefined,
+      };
+    },
+    times = (event) => {
+      if (!event.biws__datetime_meta) {
+        return {};
+      }
 
-  let getStartToEnd = (start, end) => `${start}${end ? ` - ${end}` : ""}`;
+      const startTime = event.biws__datetime_meta.datetime__start_time;
+      const endTime = event.biws__datetime_meta.datetime__end_time;
 
-  let getStartToEndDate = (start, end) =>
-    getStartToEnd(getDateString(start), getDateString(end));
-
-  let getStartToEndTime = (start, end) =>
-    start
-      ? `${getStartToEnd(getTimeString(start), getTimeString(end))} Uhr`
-      : undefined;
-
-  let dates = (function (event) {
-    if (!event.biws__datetime_meta) {
-      return {};
-    }
-
-    const startDate = event.biws__datetime_meta.datetime__start_date;
-    const endDate = event.biws__datetime_meta.datetime__end_date;
-
-    return {
-      start: startDate ? new Date(Date.parse(startDate)) : undefined,
-      end: endDate ? new Date(Date.parse(endDate)) : undefined,
+      return {
+        start: startTime,
+        end: endTime,
+      };
+    },
+    getLocations = (location) => {
+      let output = [];
+      output.push(location.name);
+      output.push(location.building);
+      output.push(
+        [location.street, location.street_nr].filter(Boolean).join(" ")
+      );
+      output.push([location.zip, location.location].filter(Boolean).join(" "));
+      return output.filter(Boolean).join(", $").split("$");
+    },
+    lazyMail = async (node, data) => {
+      setTimeout(() => {
+        node.setAttribute("href", data.href);
+      }, 2500);
     };
-  })(event);
-
-  let times = (function (event) {
-    if (!event.biws__datetime_meta) {
-      return {};
-    }
-
-    const startTime = event.biws__datetime_meta.datetime__start_time;
-    const endTime = event.biws__datetime_meta.datetime__end_time;
-
-    return {
-      start: startTime,
-      end: endTime,
-    };
-  })(event);
-
-  let getLocations = (location) => {
-    let output = [];
-    output.push(location.name);
-    output.push(location.building);
-    output.push(
-      [location.street, location.street_nr].filter(Boolean).join(" ")
-    );
-    output.push([location.zip, location.location].filter(Boolean).join(" "));
-    return output.filter(Boolean).join(", $").split("$");
-  };
-
-  let lazyMail = async (node, data) => {
-    setTimeout(() => {
-      node.setAttribute("href", data.href);
-    }, 2500);
-  };
 </script>
 
 <style>
-  :root {
-    --biws-card-border-radius: 3px;
-    --biws-red: #db3b0f;
-    --biws-grey0: #fafafa;
-    --biws-grey1: #eee;
-    --biws-grey2: #e0e0e0;
-  }
-
   .biws__divider {
     height: 1px;
-    background-color: var(--biws-grey2);
+    background-color: var(--taki-grey2);
   }
 
   .biws__event_item {
     word-break: break-word;
-    border-radius: var(--biws-card-border-radius);
+    border-radius: var(--taki-border-radius);
     margin: 0.5rem 0 1rem 0;
     -webkit-box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
       0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
@@ -139,9 +124,8 @@
   }
 
   .biws__event_date {
-    background-color: var(--biws-red);
-    border-radius: 0 var(--biws-card-border-radius)
-      var(--biws-card-border-radius) 0;
+    background-color: var(--taki-red);
+    border-radius: 0 var(--taki-border-radius) var(--taki-border-radius) 0;
     -webkit-box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
       0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
@@ -211,14 +195,13 @@
   }
 
   .biws__event_footer {
-    background-color: var(--biws-grey0);
-    border-top: 1px solid var(--biws-grey1);
-    border-radius: 0 0 var(--biws-card-border-radius)
-      var(--biws-card-border-radius);
+    background-color: var(--taki-grey0);
+    border-top: 1px solid var(--taki-grey1);
+    border-radius: 0 0 var(--taki-border-radius) var(--taki-border-radius);
   }
 
   .biws__event_contacts {
-    display:block;
+    display: block;
   }
 
   .biws__contact_wrapper {
@@ -253,15 +236,15 @@
       line-height: 5rem;
     }
 
-  .biws__event_contacts {
-    display: flex;
-    flex-wrap: wrap;
-    width: 100%;
-  }
+    .biws__event_contacts {
+      display: flex;
+      flex-wrap: wrap;
+      width: 100%;
+    }
 
-  .biws__event_info {
-    margin-right:10rem;
-  }
+    .biws__event_info {
+      margin-right: 10rem;
+    }
 
     .biws__event_contacts {
       margin: 0 9rem;
@@ -273,10 +256,10 @@
   <div class="biws__event_content">
     <div class="biws__event_spacer">
       <div class="biws__event_date">
-        {#if dates.start}
-          <span class="biws__event_day">{dates.start.getDate()}</span>
+        {#if dates(event)}
+          <span class="biws__event_day">{dates(event).start.getDate()}</span>
           <span class="biws__event_month">
-            {getShortMonthName(dates.start)}
+            {getShortMonthName(dates(event).start)}
           </span>
         {:else}<span class="biws__event_planning">In Planung</span>{/if}
       </div>
@@ -292,7 +275,7 @@
       {/if}
       <div class="biws__divider" />
       <div class="biws__event_details">
-        {#if dates.start}
+        {#if dates(event).start}
           <div class="biws__event_details_item">
             <svg style="width:3rem;height:2.5rem" viewBox="0 0 24 24">
               <path
@@ -301,10 +284,10 @@
                 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0
                 19,3M19,19H5V8H19V19Z" />
             </svg>
-            <p>{getStartToEndDate(dates.start, dates.end)}</p>
+            <p>{getStartToEndDate(dates(event).start, dates(event).end)}</p>
           </div>
         {/if}
-        {#if times.start}
+        {#if times(event).start}
           <div class="biws__event_details_item">
             <svg style="width:3rem;height:2.5rem" viewBox="0 0 24 24">
               <path
@@ -314,7 +297,7 @@
                 2,17.5 2,12A10,10 0 0,1
                 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z" />
             </svg>
-            <p>{getStartToEndTime(times.start, times.end)}</p>
+            <p>{getStartToEndTime(times(event).start, times(event).end)}</p>
           </div>
         {/if}
         {#if event.biws__location_tax}
