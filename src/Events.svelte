@@ -29,6 +29,7 @@
 
 <script>
   import EventItem from "./EventItem.svelte";
+  import Pagination from "./listoptions/Pagination.svelte";
 
   import { onMount } from "svelte";
 
@@ -52,10 +53,10 @@
           .join("&");
       return `${url}${query ? `?${query}` : ""}`;
     },
-    fetchEventsData = async ({ per_page = params.per_page, page = 1 } = {}) => {
+    fetchEventsData = async ({ pageSettings = { active: 1 } } = {}) => {
       const requestUrl = getRequestUrl({
           per_page: params.per_page,
-          page: page,
+          page: pageSettings.active,
         }),
         response = await fetch(requestUrl, {
           headers: {
@@ -65,7 +66,7 @@
         });
       events = await response.json();
       pageData.total = parseInt(response.headers.get("X-WP-TotalPages"));
-      pageData.active = page;
+      pageData.active = pageSettings.active;
     };
 
   onMount(() => fetchEventsData({ per_page: params.per_page }));
@@ -78,12 +79,16 @@
     --taki-grey0: #fafafa;
     --taki-grey1: #eee;
     --taki-grey2: #e0e0e0;
+    --taki-media-break-point-0: 500px;
   }
 </style>
 
 {#if !events}
   <p>Termine werden geladen...</p>
 {/if}
+<Pagination
+  paginationSettings={pageData}
+  selectEventCallback={fetchEventsData} />
 {#each events as event}
   <EventItem {event} />
 {/each}
