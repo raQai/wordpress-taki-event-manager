@@ -36,7 +36,9 @@
   export let params;
 
   let events = [],
-    pageData = {};
+    pageData = {
+      active: 1
+    };
 
   const apiUrl = __eventsApp.env.API_URL,
     route = "biws__events",
@@ -53,7 +55,7 @@
           .join("&");
       return `${url}${query ? `?${query}` : ""}`;
     },
-    fetchEventsData = async ({ paginationSettings = { active: 1 } } = {}) => {
+    fetchEventsData = async ({ paginationSettings = pageData } = {}) => {
       const requestUrl = getRequestUrl({
           per_page: params.per_page,
           page: paginationSettings.active,
