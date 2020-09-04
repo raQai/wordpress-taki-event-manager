@@ -4,13 +4,15 @@
     active, // current active page
     maxItems, // maximum pagination items to display
   };
-  export let selectEventCallback = ({ pageSettings: paginationSettings }) => {};
+  export let selectEventCallback = ({
+    paginationSettings: paginationSettings,
+  }) => {};
 
   let pagination = [];
 
   const updateSettingsAndCall = ({ active = 1 } = {}) => {
       paginationSettings.active = active;
-      selectEventCallback({ pageSettings: paginationSettings });
+      selectEventCallback({ paginationSettings: paginationSettings });
     },
     getPagesArray = (numPages) =>
       Array.from(Array(parseInt(numPages)), (_, i) => i + 1),
@@ -120,16 +122,14 @@
 
 {#if pagination.length > 1}
   <ul>
-    {#if paginationSettings.total > pagination.length}
-      <li>
-        <button
-          class="arrow"
-          disabled={paginationSettings.active === 1}
-          on:click={() => updateSettingsAndCall({
-              active: paginationSettings.active - 1,
-            })}>&lsaquo;</button>
-      </li>
-    {/if}
+    <li>
+      <button
+        class="arrow"
+        disabled={paginationSettings.active === 1}
+        on:click={() => updateSettingsAndCall({
+            active: paginationSettings.active - 1,
+          })}>&lsaquo;</button>
+    </li>
     {#each pagination as pageNum}
       <li>
         <button
@@ -140,15 +140,13 @@
             })}>{pageNum}</button>
       </li>
     {/each}
-    {#if paginationSettings.total > pagination.length}
-      <li>
-        <button
-          class="arrow"
-          disabled={paginationSettings.active === paginationSettings.total}
-          on:click={() => updateSettingsAndCall({
-              active: paginationSettings.active + 1,
-            })}>&rsaquo;</button>
-      </li>
-    {/if}
+    <li>
+      <button
+        class="arrow"
+        disabled={paginationSettings.active === paginationSettings.total}
+        on:click={() => updateSettingsAndCall({
+            active: paginationSettings.active + 1,
+          })}>&rsaquo;</button>
+    </li>
   </ul>
 {/if}

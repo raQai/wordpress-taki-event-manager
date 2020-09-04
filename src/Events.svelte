@@ -53,10 +53,10 @@
           .join("&");
       return `${url}${query ? `?${query}` : ""}`;
     },
-    fetchEventsData = async ({ pageSettings = { active: 1 } } = {}) => {
+    fetchEventsData = async ({ paginationSettings = { active: 1 } } = {}) => {
       const requestUrl = getRequestUrl({
           per_page: params.per_page,
-          page: pageSettings.active,
+          page: paginationSettings.active,
         }),
         response = await fetch(requestUrl, {
           headers: {
@@ -66,7 +66,7 @@
         });
       events = await response.json();
       pageData.total = parseInt(response.headers.get("X-WP-TotalPages"));
-      pageData.active = pageSettings.active;
+      pageData.active = paginationSettings.active;
     };
 
   onMount(() => fetchEventsData({ per_page: params.per_page }));
