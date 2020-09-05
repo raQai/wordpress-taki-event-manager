@@ -36,10 +36,16 @@
       time ? time.toString().replace(":", ".") : undefined,
     getStartToEnd = (start, end) => `${start}${end ? ` - ${end}` : ""}`,
     getStartToEndDate = (start, end) =>
-      getStartToEnd(getDateString(start), getDateString(end)),
+      getStartToEnd(
+        getDateString(start),
+        end && end > start ? getDateString(end) : undefined
+      ),
     getStartToEndTime = (start, end) =>
       start
-        ? `${getStartToEnd(getTimeString(start), getTimeString(end))} Uhr`
+        ? `${getStartToEnd(
+            getTimeString(start),
+            end && end > start ? getTimeString(end) : undefined
+          )} Uhr`
         : undefined,
     dates = (event) => {
       if (!event.biws__datetime_meta) {
@@ -52,6 +58,7 @@
       return {
         start: startDate ? new Date(Date.parse(startDate)) : undefined,
         end: endDate ? new Date(Date.parse(endDate)) : undefined,
+        today: new Date(),
       };
     },
     times = (event) => {
@@ -59,12 +66,15 @@
         return {};
       }
 
+      const today = new Date();
       const startTime = event.biws__datetime_meta.datetime__start_time;
       const endTime = event.biws__datetime_meta.datetime__end_time;
+      const nowTime = `${today.getHours()}:${today.getMinutes()}`;
 
       return {
         start: startTime,
         end: endTime,
+        now: nowTime,
       };
     },
     getLocations = (location) => {
