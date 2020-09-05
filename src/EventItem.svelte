@@ -141,7 +141,7 @@
   }
 
   .date_planning {
-    font-size: 1rem;
+    font-size: 1.2rem;
   }
 
   .date_day {
@@ -256,7 +256,7 @@
   <div class="content">
     <div class="spacer">
       <div class="date_container">
-        {#if dates(event)}
+        {#if dates(event) && dates(event).start}
           <span class="date_day">{dates(event).start.getDate()}</span>
           <span class="date_month">
             {getShortMonthName(dates(event).start)}
