@@ -29,7 +29,8 @@
 
 <script>
   import EventItem from "./EventItem.svelte";
-  import Options from "./listoptions/Options.svelte";
+  import Pagination from "./listoptions/Pagination.svelte";
+  import Filters from "./listoptions/filters/Filters.svelte";
 
   import { onMount } from "svelte";
 
@@ -88,7 +89,12 @@
 {#if !events}
   <p>Termine werden geladen...</p>
 {/if}
-<Options paginationSettings={pageData} selectEventCallback={fetchEventsData} />
+<Pagination
+  paginationSettings={pageData}
+  selectEventCallback={fetchEventsData} />
 {#each events as event}
   <EventItem {event} />
 {/each}
+<Pagination
+  paginationSettings={pageData}
+  selectEventCallback={fetchEventsData} />

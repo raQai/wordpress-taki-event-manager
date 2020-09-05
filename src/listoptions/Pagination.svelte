@@ -57,18 +57,38 @@
 </script>
 
 <style>
+  .pagination {
+    margin: 1rem 0;
+  }
+
   ul {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     list-style: none;
     margin: 0;
     padding: 0;
-    height: 2.2rem;
+    height: 3.2rem;
+  }
+
+  .mobile {
+    justify-content: center;
+  }
+
+  .full {
+    display: none;
   }
 
   li {
-    margin: 0 0.2rem;
-    flex: 1 1;
+    margin: 0 0.3rem;
+    flex: 0 0;
+  }
+
+  li:first-of-type {
+    margin-left: 0;
+  }
+
+  li:last-of-type {
+    margin-right: 0;
   }
 
   button {
@@ -82,11 +102,22 @@
     overflow-wrap: normal;
     word-break: keep-all;
     text-align: center;
-    width: 100%;
+    width: 2.6rem;
     height: 100%;
 
     -webkit-transition: background-color 0.25s;
     transition: background-color 0.25s;
+  }
+
+  .xoftotal {
+    font-family: sans-serif;
+    font-size: 1.2rem;
+    display: block;
+    white-space: nowrap;
+    word-wrap: normal;
+    width: auto;
+    line-height: 3.2rem;
+    padding: 0 1rem;
   }
 
   button.arrow {
@@ -94,7 +125,7 @@
   }
 
   button:not(:disabled):hover,
-  button.active {
+  .active {
     color: #fff;
     background-color: var(--taki-red);
     text-decoration: none;
@@ -106,47 +137,95 @@
     text-decoration: none !important;
     cursor: default;
   }
+
   @media (min-width: 350px) {
-    ul {
-      height: 3.2rem;
+    .pagination {
+      margin: 1rem;
     }
-    li {
-      flex: 0 0;
+
+    .mobile {
+      display: none;
     }
-    button {
-      width: 2.6rem;
-      text-align: center;
+
+    .full {
+      display: flex;
     }
   }
 </style>
 
 {#if pagination.length > 1}
-  <ul>
-    <li>
-      <button
-        class="arrow"
-        disabled={paginationSettings.active === 1}
-        on:click={() => updateSettingsAndCall({
-            active: paginationSettings.active - 1,
-          })}>&lsaquo;</button>
-    </li>
-    {#each pagination as pageNum}
+  <div class="pagination">
+    <!--simplified mobile pagination-->
+    <ul class="mobile">
       <li>
         <button
-          disabled={typeof pageNum === 'string'}
-          class={paginationSettings.active === pageNum ? 'active' : ''}
-          on:click={() => updateSettingsAndCall({
-              active: pageNum,
-            })}>{pageNum}</button>
+          aria-label="Erste Seite"
+          class="arrow"
+          disabled={paginationSettings.active === 1}
+          on:click={() => updateSettingsAndCall({ active: 1 })}>&laquo;</button>
       </li>
-    {/each}
-    <li>
-      <button
-        class="arrow"
-        disabled={paginationSettings.active === paginationSettings.total}
-        on:click={() => updateSettingsAndCall({
-            active: paginationSettings.active + 1,
-          })}>&rsaquo;</button>
-    </li>
-  </ul>
+      <li>
+        <button
+          aria-label="Eine Seite zurück"
+          class="arrow"
+          disabled={paginationSettings.active === 1}
+          on:click={() => updateSettingsAndCall({
+              active: paginationSettings.active - 1,
+            })}>&lsaquo;</button>
+      </li>
+      <li>
+        <span class="active xoftotal">{paginationSettings.active} von {paginationSettings.total}</span>
+      </li>
+      <li>
+        <button
+          aria-label="Eine Seite vor"
+          class="arrow"
+          disabled={paginationSettings.active === paginationSettings.total}
+          on:click={() => updateSettingsAndCall({
+              active: paginationSettings.active + 1,
+            })}>&rsaquo;</button>
+      </li>
+      <li>
+        <button
+          aria-label="Letzte Seite"
+          class="arrow"
+          disabled={paginationSettings.active === paginationSettings.total}
+          on:click={() => updateSettingsAndCall({
+              active: paginationSettings.total,
+            })}>&raquo;</button>
+      </li>
+    </ul>
+    <!--regular pagination-->
+    <ul class="full">
+      <li>
+        <button
+          aria-label="Eine Seite zurück"
+          class="arrow"
+          disabled={paginationSettings.active === 1}
+          on:click={() => updateSettingsAndCall({
+              active: paginationSettings.active - 1,
+            })}>&lsaquo;</button>
+      </li>
+      {#each pagination as pageNum}
+        <li>
+          <button
+            aria-label="Gehe zu Seite {pageNum}"
+            disabled={typeof pageNum === 'string'}
+            class={paginationSettings.active === pageNum ? 'active' : ''}
+            on:click={() => updateSettingsAndCall({
+                active: pageNum,
+              })}>{pageNum}</button>
+        </li>
+      {/each}
+      <li>
+        <button
+          aria-label="Eine Seite vor"
+          class="arrow"
+          disabled={paginationSettings.active === paginationSettings.total}
+          on:click={() => updateSettingsAndCall({
+              active: paginationSettings.active + 1,
+            })}>&rsaquo;</button>
+      </li>
+    </ul>
+  </div>
 {/if}
