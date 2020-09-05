@@ -38,10 +38,27 @@
 
   let events = [],
     pageData = {
-      active: 1
+      active: 1,
     };
 
+  const testSelectFilter = {
+    type: "select",
+    label: "Region",
+    items: new Map(),
+  };
+  testSelectFilter.items.set(4, "Lorem, ipsum dolor");
+  testSelectFilter.items.set(53, "sit amet consectetur");
+  testSelectFilter.items.set(2, "adipisicing elit");
+  testSelectFilter.items.set(5, "Vitae molestiae earum ullam");
+  const test2SelectFilter = Object.assign({}, testSelectFilter);
+  test2SelectFilter.label = "Another One";
+  const test3SelectFilter = Object.assign({}, testSelectFilter);
+  test3SelectFilter.label = "And Another One";
+
   const filterSettings = [];
+  filterSettings.push(testSelectFilter);
+  filterSettings.push(test3SelectFilter);
+  filterSettings.push(test2SelectFilter);
 
   const apiUrl = __eventsApp.env.API_URL,
     route = "biws__events",

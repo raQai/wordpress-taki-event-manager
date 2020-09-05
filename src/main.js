@@ -4,7 +4,7 @@ const app = new App({
 	target: document.querySelector("#biws__events-list"),
 	props: {
 		params: {
-			per_page: 1,
+			per_page: 5,
 		}
 	}
 });
