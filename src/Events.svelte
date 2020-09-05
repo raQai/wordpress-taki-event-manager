@@ -41,6 +41,8 @@
       active: 1
     };
 
+  const filterSettings = [];
+
   const apiUrl = __eventsApp.env.API_URL,
     route = "biws__events",
     getRequestUrl = ({ per_page = 0, page = 0 } = {}) => {
@@ -89,6 +91,7 @@
 {#if !events}
   <p>Termine werden geladen...</p>
 {/if}
+<Filters {filterSettings} selectEventCallback={fetchEventsData} />
 <Pagination
   paginationSettings={pageData}
   selectEventCallback={fetchEventsData} />
