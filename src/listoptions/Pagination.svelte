@@ -14,6 +14,14 @@
       paginationSettings.active = active;
       selectEventCallback({ paginationSettings: paginationSettings });
     },
+    isActivePage = (pageNum) => {
+      return (
+        paginationSettings.active === pageNum ||
+        (paginationSettings.active <= 1 && pageNum <= 1) ||
+        (paginationSettings.active >= paginationSettings.total &&
+          pageNum >= paginationSettings.total)
+      );
+    },
     getPagesArray = (numPages) =>
       Array.from(Array(parseInt(numPages)), (_, i) => i + 1),
     middleValue = ({ a, b, c }) =>
@@ -161,14 +169,14 @@
         <button
           aria-label="Erste Seite"
           class="arrow"
-          disabled={paginationSettings.active === 1}
+          disabled={paginationSettings.active <= 1}
           on:click={() => updateSettingsAndCall({ active: 1 })}>&laquo;</button>
       </li>
       <li>
         <button
           aria-label="Eine Seite zurück"
           class="arrow"
-          disabled={paginationSettings.active === 1}
+          disabled={paginationSettings.active <= 1}
           on:click={() => updateSettingsAndCall({
               active: paginationSettings.active - 1,
             })}>&lsaquo;</button>
@@ -180,7 +188,7 @@
         <button
           aria-label="Eine Seite vor"
           class="arrow"
-          disabled={paginationSettings.active === paginationSettings.total}
+          disabled={paginationSettings.active >= paginationSettings.total}
           on:click={() => updateSettingsAndCall({
               active: paginationSettings.active + 1,
             })}>&rsaquo;</button>
@@ -189,7 +197,7 @@
         <button
           aria-label="Letzte Seite"
           class="arrow"
-          disabled={paginationSettings.active === paginationSettings.total}
+          disabled={paginationSettings.active >= paginationSettings.total}
           on:click={() => updateSettingsAndCall({
               active: paginationSettings.total,
             })}>&raquo;</button>
@@ -201,7 +209,7 @@
         <button
           aria-label="Eine Seite zurück"
           class="arrow"
-          disabled={paginationSettings.active === 1}
+          disabled={paginationSettings.active <= 1}
           on:click={() => updateSettingsAndCall({
               active: paginationSettings.active - 1,
             })}>&lsaquo;</button>
@@ -211,7 +219,7 @@
           <button
             aria-label="Gehe zu Seite {pageNum}"
             disabled={typeof pageNum === 'string'}
-            class={paginationSettings.active === pageNum ? 'active' : ''}
+            class={isActivePage(pageNum) ? 'active' : ''}
             on:click={() => updateSettingsAndCall({
                 active: pageNum,
               })}>{pageNum}</button>
@@ -221,7 +229,7 @@
         <button
           aria-label="Eine Seite vor"
           class="arrow"
-          disabled={paginationSettings.active === paginationSettings.total}
+          disabled={paginationSettings.active >= paginationSettings.total}
           on:click={() => updateSettingsAndCall({
               active: paginationSettings.active + 1,
             })}>&rsaquo;</button>

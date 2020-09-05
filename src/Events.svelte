@@ -77,18 +77,37 @@
     },
     fetchEventsData = async ({ paginationSettings = pageData } = {}) => {
       const requestUrl = getRequestUrl({
-          per_page: params.per_page,
-          page: paginationSettings.active,
-        }),
-        response = await fetch(requestUrl, {
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
+        per_page: params.per_page,
+        page: paginationSettings.active,
+      });
+      fetch(requestUrl, {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw Error(response.statusText);
+          }
+          return response;
+        })
+        .then((response) => {
+          pageData.total = parseInt(response.headers.get("X-WP-TotalPages"));
+          pageData.active = paginationSettings.active;
+          return response.json();
+        })
+        .then((json) => (events = json))
+        .catch((error) => {
+          console.error(
+            "Cannot get post data from",
+            requestUrl,
+            "Please make sure the url is valid.",
+            error
+          );
+          events = [];
+          pageData = {};
         });
-      events = await response.json();
-      pageData.total = parseInt(response.headers.get("X-WP-TotalPages"));
-      pageData.active = paginationSettings.active;
     };
 
   onMount(() => fetchEventsData({ per_page: params.per_page }));
