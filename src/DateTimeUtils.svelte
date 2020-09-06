@@ -86,13 +86,6 @@
     (isToday(today, startDate, endDate) ||
       isBetween(today, startDate, endDate)) &&
     ((!startTime && !endTime) || isOngoingTime(now, startTime, endTime));
-  export const hasEnded = (today, endDate, now, endTime) =>
-    today &&
-    endDate &&
-    now &&
-    endTime &&
-    endDate <= today &&
-    getTimeValue(endTime) <= getTimeValue(now);
 </script>
 
 <script>

@@ -1,53 +1,13 @@
 <script>
+  import {
+    getShortMonthName,
+    getStartToEndDateString,
+    getStartToEndTimeString,
+    isOngoing,
+    isToday,
+  } from "./DateTimeUtils.svelte";
   export let event;
-  const getWeekDayName = (date) =>
-      [
-        "Sonntag",
-        "Montag",
-        "Dienstag",
-        "Mittwoch",
-        "Donnerstag",
-        "Freitag",
-        "Samstag",
-        "Sonntag",
-      ][date.getDay()],
-    getShortMonthName = (date) =>
-      [
-        "Jan",
-        "Feb",
-        "Mär",
-        "Apr",
-        "Mai",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Okt",
-        "Nov",
-        "Dez",
-      ][date.getMonth()],
-    getDateString = (date) =>
-      date
-        ? `${getWeekDayName(date)}, ${Intl.DateTimeFormat("de-DE").format(
-            date
-          )}`
-        : undefined,
-    getTimeString = (time) =>
-      time ? time.toString().replace(":", ".") : undefined,
-    getStartToEnd = (start, end) => `${start}${end ? ` - ${end}` : ""}`,
-    getStartToEndDate = (start, end) =>
-      getStartToEnd(
-        getDateString(start),
-        end && end > start ? getDateString(end) : undefined
-      ),
-    getStartToEndTime = (start, end) =>
-      start
-        ? `${getStartToEnd(
-            getTimeString(start),
-            end && end > start ? getTimeString(end) : undefined
-          )} Uhr`
-        : undefined,
-    dates = (event) => {
+  const getDates = (event) => {
       if (!event.biws__datetime_meta) {
         return {};
       }
@@ -58,10 +18,10 @@
       return {
         start: startDate ? new Date(Date.parse(startDate)) : undefined,
         end: endDate ? new Date(Date.parse(endDate)) : undefined,
-        today: new Date(),
+        today: new Date(Date.parse(new Date().toISOString().substr(0, 10))),
       };
     },
-    times = (event) => {
+    getTimes = (event) => {
       if (!event.biws__datetime_meta) {
         return {};
       }
@@ -92,6 +52,21 @@
         node.setAttribute("href", data.href);
       }, 2500);
     };
+
+  $: dates = getDates(event);
+  $: times = getTimes(event);
+  $: ongoing =
+    dates &&
+    times &&
+    isOngoing(
+      dates.today,
+      dates.start,
+      dates.end,
+      times.now,
+      times.start,
+      times.end
+    );
+  $: today = dates && isToday(dates.today, dates.start, dates.end);
 </script>
 
 <style>
@@ -266,11 +241,15 @@
   <div class="content">
     <div class="spacer">
       <div class="date_container">
-        {#if dates(event) && dates(event).start}
-          <span class="date_day">{dates(event).start.getDate()}</span>
+        {#if dates && dates.start instanceof Date && !today && !ongoing}
+          <span class="date_day">{dates.start.getDate()}</span>
           <span class="date_month">
-            {getShortMonthName(dates(event).start)}
+            {getShortMonthName(dates.start.getMonth())}
           </span>
+        {:else if ongoing}
+          <span class="date_planning">Laufend</span>
+        {:else if today}
+          <span class="date_planning">Heute</span>
         {:else}<span class="date_planning">In Planung</span>{/if}
       </div>
     </div>
@@ -285,7 +264,7 @@
       {/if}
       <div class="divider" />
       <div class="details_container">
-        {#if dates(event).start}
+        {#if dates && dates.start}
           <div class="details_item">
             <svg style="width:3rem;height:2.5rem" viewBox="0 0 24 24">
               <path
@@ -294,10 +273,10 @@
                 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0
                 19,3M19,19H5V8H19V19Z" />
             </svg>
-            <p>{getStartToEndDate(dates(event).start, dates(event).end)}</p>
+            <p>{getStartToEndDateString(dates.start, dates.end)}</p>
           </div>
         {/if}
-        {#if times(event).start}
+        {#if times && times.start}
           <div class="details_item">
             <svg style="width:3rem;height:2.5rem" viewBox="0 0 24 24">
               <path
@@ -307,7 +286,7 @@
                 2,17.5 2,12A10,10 0 0,1
                 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z" />
             </svg>
-            <p>{getStartToEndTime(times(event).start, times(event).end)}</p>
+            <p>{getStartToEndTimeString(times.start, times.end)}</p>
           </div>
         {/if}
         {#if event.biws__location_tax}
@@ -338,12 +317,8 @@
       <div class="contacts_container">
         {#each event.biws__contact_tax as contact}
           <div class="contact_container">
-            {#if contact.name}
-              <span class="contact">{contact.name}</span>
-            {/if}
-            {#if contact.phone}
-              <span class="tel">{contact.phone}</span>
-            {/if}
+            {#if contact.name}<span class="contact">{contact.name}</span>{/if}
+            {#if contact.phone}<span class="tel">{contact.phone}</span>{/if}
             {#if contact.email}
               <a
                 class="highlight-text"
