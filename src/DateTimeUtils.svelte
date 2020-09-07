@@ -83,9 +83,12 @@
     startTime,
     endTime
   ) =>
-    (isToday(today, startDate, endDate) ||
-      isBetween(today, startDate, endDate)) &&
-    ((!startTime && !endTime) || isOngoingTime(now, startTime, endTime));
+    (isToday(today, startDate, endDate) &&
+      startTime &&
+      endTime &&
+      isOngoingTime(now, startTime, endTime)) ||
+    (!isToday(today, startDate, endDate) &&
+      isBetween(today, startDate, endDate));
 </script>
 
 <script>
