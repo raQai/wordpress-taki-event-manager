@@ -39,6 +39,7 @@
     width:0;
     top:.8rem;
     right:2.4rem;
+    pointer-events: none;
   }
   option {
     color: #222;
