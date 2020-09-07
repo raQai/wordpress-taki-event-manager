@@ -126,14 +126,17 @@
 
 {#if !events}
   <p>Termine werden geladen...</p>
+{:else if events.length == 0}
+  <p>Keine Termine angekündigt.</p>
+{:else}
+  <Filters {filterSettings} selectEventCallback={fetchEventsData} />
+  <Pagination
+    paginationSettings={pageData}
+    selectEventCallback={fetchEventsData} />
+  {#each events as event}
+    <EventItem {event} />
+  {/each}
+  <Pagination
+    paginationSettings={pageData}
+    selectEventCallback={fetchEventsData} />
 {/if}
-<Filters {filterSettings} selectEventCallback={fetchEventsData} />
-<Pagination
-  paginationSettings={pageData}
-  selectEventCallback={fetchEventsData} />
-{#each events as event}
-  <EventItem {event} />
-{/each}
-<Pagination
-  paginationSettings={pageData}
-  selectEventCallback={fetchEventsData} />
