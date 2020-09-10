@@ -7,8 +7,8 @@ const app = new Events({
 			perPage: 5,
 		},
 		taxonomies: {
-			"biws__cat_tax": "treffpunkt"
-		},
+			biws__cat_tax:"treffpunkt",
+		}
 	}
 });
 

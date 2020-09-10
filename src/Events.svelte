@@ -32,18 +32,34 @@
   import EventItem from "./EventItem.svelte";
   import Pagination from "./listoptions/Pagination.svelte";
   export let params = { perPage: -1 };
-  export let taxonomies = [];
+  export let taxonomies = {};
 
   const apiUrl = __eventsApp.env.API_URL;
   let events = [];
   let paginationSettings = {};
 
-  const getRequestUrl = ({ perPage = -1 } = {}, { active = -1 } = {}) => {
+  const getRequestUrl = (
+    { perPage = -1 } = {},
+    { active = -1 } = {},
+    taxonomies = {}
+  ) => {
     const esc = encodeURIComponent,
       url = `${apiUrl}biws__events`,
       queryParams = [];
     queryParams["posts_per_page"] = perPage;
     queryParams["paged"] = active;
+    if (taxonomies instanceof Object) {
+      Object.keys(taxonomies)
+        .filter((k) => taxonomies[k])
+        .forEach((k) => {
+          let values = taxonomies[k];
+          if (typeof values === "string") {
+            queryParams[k] = values;
+          } else if (values.hasOwnProperty("length")) {
+            queryParams[k] = values.join(",");
+          }
+        });
+    }
     const query = Object.keys(queryParams)
       .filter((k) => queryParams[k])
       .map((k) => `${esc(k)}=${queryParams[k]}`)
@@ -51,7 +67,7 @@
     return `${url}${query ? `?${query}` : ""}`;
   };
 
-  $: fetch(getRequestUrl(params, paginationSettings), {
+  $: fetch(getRequestUrl(params, paginationSettings, taxonomies), {
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
