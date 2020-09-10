@@ -1,32 +1,45 @@
 <script>
-  export let paginationSettings = {
-    total, // num total pages
-    active, // current active page
-    maxItems, // maximum pagination items to display
+  const defaults = {
+    total: 1,
+    active: 1,
+    maxItems: 7,
   };
-  export let selectEventCallback = ({
-    paginationSettings: paginationSettings,
-  }) => {};
 
-  let pagination = [];
+  export let totalPages = defaults.total; // num total pages
+  export let activePage = defaults.active; // current active page
+  export let maxItems = defaults.maxItems; // maximum pagination items to display
 
-  const updateSettingsAndCall = ({ active = 1 } = {}) => {
-      paginationSettings.active = active;
-      selectEventCallback({ paginationSettings: paginationSettings });
+  const getPagesArray = (numPages) => {
+      return Array.from(Array(parseInt(numPages)), (_, i) => i + 1);
     },
-    isActivePage = (pageNum) => {
-      return (
-        paginationSettings.active === pageNum ||
-        (paginationSettings.active <= 1 && pageNum <= 1) ||
-        (paginationSettings.active >= paginationSettings.total &&
-          pageNum >= paginationSettings.total)
-      );
+    middleValue = (a, b, c) =>
+      a + b + c - Math.min(a, b, c) - Math.max(a, b, c);
+
+  const setActivePage = (pageNum) => {
+      activePage = pageNum;
     },
-    getPagesArray = (numPages) =>
-      Array.from(Array(parseInt(numPages)), (_, i) => i + 1),
-    middleValue = ({ a, b, c }) =>
-      a + b + c - Math.min(a, b, c) - Math.max(a, b, c),
-    getPaginationArray = ({ total = 0, active = 0, maxItems = 7 } = {}) => {
+    firstPage = () => {
+      activePage = 1;
+    },
+    previousPage = () => {
+      if (isNaN(activePage)) {
+        return;
+      }
+      activePage -= 1;
+    },
+    nextPage = () => {
+      if (isNaN(activePage)) {
+        return;
+      }
+      activePage += 1;
+    },
+    lastPage = () => {
+      if (isNaN(totalPages)) {
+        return;
+      }
+      activePage = totalPages;
+    },
+    getPages = (total, active, maxItems) => {
       const pagesArray = getPagesArray(total);
       if (total <= maxItems) return pagesArray;
       const preferredNumPagesBoundary = (maxItems - 1) >> 1, // remove first and last element and the actual element and divide by 2
@@ -36,18 +49,18 @@
         rightLowerBoundary = total - active,
         leftBoundary =
           active -
-          middleValue({
-            a: preferredNumPagesBoundary,
-            b: leftUpperBoundary,
-            c: leftLowerBoundary,
-          }),
+          middleValue(
+            preferredNumPagesBoundary,
+            leftUpperBoundary,
+            leftLowerBoundary
+          ),
         rightBoundary =
           active +
-          middleValue({
-            a: preferredNumPagesBoundary - (maxItems % 2) + 1,
-            b: rightUpperBoundary,
-            c: rightLowerBoundary,
-          });
+          middleValue(
+            preferredNumPagesBoundary - (maxItems % 2) + 1,
+            rightUpperBoundary,
+            rightLowerBoundary
+          );
 
       const filtered = pagesArray.filter(
         (k) => k === 1 || k === total || (k > leftBoundary && k < rightBoundary)
@@ -61,7 +74,14 @@
       return filtered;
     };
 
-  $: pagination = getPaginationArray(paginationSettings);
+  $: ensureValidSettings = (function (total, active) {
+    if (active > total) {
+      active = total;
+    } else if (active < 1) {
+      active = 1;
+    }
+  })(totalPages, activePage);
+  $: pages = getPages(totalPages, activePage, maxItems);
 </script>
 
 <style>
@@ -161,7 +181,7 @@
   }
 </style>
 
-{#if pagination.length > 1}
+{#if pages && pages.length > 1}
   <div class="pagination">
     <!--simplified mobile pagination-->
     <ul class="mobile">
@@ -169,38 +189,32 @@
         <button
           aria-label="Erste Seite"
           class="arrow"
-          disabled={paginationSettings.active <= 1}
-          on:click={() => updateSettingsAndCall({ active: 1 })}>&laquo;</button>
+          disabled={activePage <= 1}
+          on:click={firstPage}>&laquo;</button>
       </li>
       <li>
         <button
           aria-label="Eine Seite zurück"
           class="arrow"
-          disabled={paginationSettings.active <= 1}
-          on:click={() => updateSettingsAndCall({
-              active: paginationSettings.active - 1,
-            })}>&lsaquo;</button>
+          disabled={activePage <= 1}
+          on:click={previousPage}>&lsaquo;</button>
       </li>
       <li>
-        <span class="active xoftotal">{paginationSettings.active} von {paginationSettings.total}</span>
+        <span class="active xoftotal">{activePage} von {totalPages}</span>
       </li>
       <li>
         <button
           aria-label="Eine Seite vor"
           class="arrow"
-          disabled={paginationSettings.active >= paginationSettings.total}
-          on:click={() => updateSettingsAndCall({
-              active: paginationSettings.active + 1,
-            })}>&rsaquo;</button>
+          disabled={activePage >= totalPages}
+          on:click={nextPage}>&rsaquo;</button>
       </li>
       <li>
         <button
           aria-label="Letzte Seite"
           class="arrow"
-          disabled={paginationSettings.active >= paginationSettings.total}
-          on:click={() => updateSettingsAndCall({
-              active: paginationSettings.total,
-            })}>&raquo;</button>
+          disabled={activePage >= totalPages}
+          on:click={lastPage}>&raquo;</button>
       </li>
     </ul>
     <!--regular pagination-->
@@ -209,30 +223,24 @@
         <button
           aria-label="Eine Seite zurück"
           class="arrow"
-          disabled={paginationSettings.active <= 1}
-          on:click={() => updateSettingsAndCall({
-              active: paginationSettings.active - 1,
-            })}>&lsaquo;</button>
+          disabled={activePage <= 1}
+          on:click={previousPage}>&lsaquo;</button>
       </li>
-      {#each pagination as pageNum}
+      {#each pages as pageNum}
         <li>
           <button
             aria-label="Gehe zu Seite {pageNum}"
             disabled={typeof pageNum === 'string'}
-            class={isActivePage(pageNum) ? 'active' : ''}
-            on:click={() => updateSettingsAndCall({
-                active: pageNum,
-              })}>{pageNum}</button>
+            class={activePage === pageNum ? 'active' : ''}
+            on:click={() => (activePage = pageNum)}>{pageNum}</button>
         </li>
       {/each}
       <li>
         <button
           aria-label="Eine Seite vor"
           class="arrow"
-          disabled={paginationSettings.active >= paginationSettings.total}
-          on:click={() => updateSettingsAndCall({
-              active: paginationSettings.active + 1,
-            })}>&rsaquo;</button>
+          disabled={activePage >= totalPages}
+          on:click={nextPage}>&rsaquo;</button>
       </li>
     </ul>
   </div>

@@ -1,11 +1,14 @@
-import App from './App.svelte';
+import Events from './Events.svelte';
 
-const app = new App({
+const app = new Events({
 	target: document.querySelector("#biws__events-list"),
 	props: {
 		params: {
-			per_page: 5,
-		}
+			perPage: 5,
+		},
+		taxonomies: {
+			"biws__cat_tax": "treffpunkt"
+		},
 	}
 });
 

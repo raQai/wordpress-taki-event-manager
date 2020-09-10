@@ -28,115 +28,55 @@
 </script>
 
 <script>
+  import { onMount } from "svelte";
   import EventItem from "./EventItem.svelte";
   import Pagination from "./listoptions/Pagination.svelte";
-  import Filters from "./listoptions/filters/Filters.svelte";
+  export let params = { perPage: -1 };
+  export let taxonomies = [];
 
-  import { onMount } from "svelte";
+  const apiUrl = __eventsApp.env.API_URL;
+  let events = [];
+  let paginationSettings = {};
 
-  export let params;
-
-  let events = [],
-    pageData = {
-      active: 1,
-    };
-
-  const testSelectFilter = {
-    type: "select",
-    label: "Region",
-    items: new Map(),
+  const getRequestUrl = ({ perPage = -1 } = {}, { active = -1 } = {}) => {
+    const esc = encodeURIComponent,
+      url = `${apiUrl}biws__events`,
+      queryParams = [];
+    queryParams["posts_per_page"] = perPage;
+    queryParams["paged"] = active;
+    const query = Object.keys(queryParams)
+      .filter((k) => queryParams[k])
+      .map((k) => `${esc(k)}=${queryParams[k]}`)
+      .join("&");
+    return `${url}${query ? `?${query}` : ""}`;
   };
-  testSelectFilter.items.set(4, "Lorem, ipsum dolor");
-  testSelectFilter.items.set(53, "sit amet consectetur");
-  testSelectFilter.items.set(2, "adipisicing elit");
-  testSelectFilter.items.set(5, "Vitae molestiae earum ullam");
-  const test2SelectFilter = Object.assign({}, testSelectFilter);
-  test2SelectFilter.label = "Another One";
-  const test3SelectFilter = Object.assign({}, testSelectFilter);
-  test3SelectFilter.label = "And Another One";
 
-  const filterSettings = [];
-  filterSettings.push(testSelectFilter);
-  filterSettings.push(test3SelectFilter);
-  filterSettings.push(test2SelectFilter);
-
-  const apiUrl = __eventsApp.env.API_URL,
-    route = "biws__events",
-    getRequestUrl = ({ per_page = 0, page = 0 } = {}) => {
-      const url = `${apiUrl}${route || ""}`,
-        params = {
-          posts_per_page: per_page,
-          paged: page,
-        },
-        esc = encodeURIComponent,
-        query = Object.keys(params)
-          .filter((k) => params[k])
-          .map((k) => `${esc(k)}=${params[k]}`)
-          .join("&");
-      return `${url}${query ? `?${query}` : ""}`;
+  $: fetch(getRequestUrl(params, paginationSettings), {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
     },
-    fetchEventsData = async ({ paginationSettings = pageData } = {}) => {
-      const requestUrl = getRequestUrl({
-        per_page: params.per_page,
-        page: paginationSettings.active,
-      });
-      fetch(requestUrl, {
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw Error(response.statusText);
-          }
-          return response;
-        })
-        .then((response) => {
-          pageData.total = parseInt(response.headers.get("X-WP-TotalPages"));
-          pageData.active = paginationSettings.active;
-          return response.json();
-        })
-        .then((json) => (events = json))
-        .catch((error) => {
-          console.error(
-            "Cannot get post data from",
-            requestUrl,
-            "Please make sure the url is valid.",
-            error
-          );
-          events = [];
-          pageData = {};
-        });
-    };
-
-  onMount(() => fetchEventsData({ per_page: params.per_page }));
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw Error(response.statusText);
+      }
+      return response;
+    })
+    .then((response) => {
+      const total = parseInt(response.headers.get("X-WP-TotalPages"));
+      if (total != paginationSettings.total) {
+        paginationSettings.total = total;
+      }
+      return response;
+    })
+    .then((response) => response.json())
+    .then((data) => (events = data));
 </script>
 
-<style>
-  :root {
-    --taki-border-radius: 3px;
-    --taki-red: #db3b0f;
-    --taki-grey0: #fafafa;
-    --taki-grey1: #eee;
-    --taki-grey2: #e0e0e0;
-    --taki-media-break-point-0: 500px;
-  }
-</style>
-
-{#if !events}
-  <p>Termine werden geladen...</p>
-{:else if events.length == 0}
-  <p>Keine Termine angekündigt.</p>
-{:else}
-  <Filters {filterSettings} selectEventCallback={fetchEventsData} />
-  <Pagination
-    paginationSettings={pageData}
-    selectEventCallback={fetchEventsData} />
-  {#each events as event}
-    <EventItem {event} />
-  {/each}
-  <Pagination
-    paginationSettings={pageData}
-    selectEventCallback={fetchEventsData} />
-{/if}
+<Pagination
+  bind:totalPages={paginationSettings.total}
+  bind:activePage={paginationSettings.active} />
+{#each events as event}
+  <EventItem {event} />
+{/each}
