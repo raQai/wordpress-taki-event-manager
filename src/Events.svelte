@@ -31,65 +31,106 @@
   import { onMount } from "svelte";
   import EventItem from "./EventItem.svelte";
   import Pagination from "./listoptions/Pagination.svelte";
+  import Filters from "./listoptions/filters/Filters.svelte";
   export let params = { perPage: -1 };
   export let taxonomies = {};
+  export let filters = {};
 
   const apiUrl = __eventsApp.env.API_URL;
   let events = [];
   let paginationSettings = {};
+  let filtersCache = {};
 
-  const getRequestUrl = (
-    { perPage = -1 } = {},
-    { active = -1 } = {},
-    taxonomies = {}
-  ) => {
-    const esc = encodeURIComponent,
-      url = `${apiUrl}biws__events`,
-      queryParams = [];
-    queryParams["posts_per_page"] = perPage;
-    queryParams["paged"] = active;
-    if (taxonomies instanceof Object) {
-      Object.keys(taxonomies)
-        .filter((k) => taxonomies[k])
-        .forEach((k) => {
-          let values = taxonomies[k];
-          if (typeof values === "string") {
-            queryParams[k] = values;
-          } else if (values.hasOwnProperty("length")) {
-            queryParams[k] = values.join(",");
-          }
-        });
-    }
-    const query = Object.keys(queryParams)
-      .filter((k) => queryParams[k])
-      .map((k) => `${esc(k)}=${queryParams[k]}`)
-      .join("&");
-    return `${url}${query ? `?${query}` : ""}`;
-  };
-
-  $: fetch(getRequestUrl(params, paginationSettings, taxonomies), {
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
+  const cacheFilters = (filter) =>
+      (filtersCache = JSON.parse(JSON.stringify(filter))),
+    filtersHaveChanged = (filter) =>
+      JSON.stringify(filter) !== JSON.stringify(filtersCache),
+    addTaxonomy = (obj, taxonomy, values) => {
+      if (!values) {
+        return;
+      }
+      if (typeof values === "string") {
+        return (obj[taxonomy] = values);
+      }
+      if (values.hasOwnProperty("length")) {
+        return (obj[taxonomy] = values.join(","));
+      }
     },
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw Error(response.statusText);
+    getRequestUrl = (
+      { perPage = -1 } = {},
+      { active = -1 } = {},
+      taxonomies = {},
+      filters = {}
+    ) => {
+      const esc = encodeURIComponent,
+        url = `${apiUrl}biws__events`,
+        queryParams = [];
+      queryParams["posts_per_page"] = perPage;
+      queryParams["paged"] = active;
+
+      // add taxonomies
+      if (taxonomies instanceof Object) {
+        Object.keys(taxonomies)
+          .filter((taxonomy) => taxonomies[taxonomy])
+          .forEach((taxonomy) =>
+            addTaxonomy(queryParams, taxonomy, taxonomies[taxonomy])
+          );
       }
-      return response;
-    })
-    .then((response) => {
-      const total = parseInt(response.headers.get("X-WP-TotalPages"));
-      if (total != paginationSettings.total) {
-        paginationSettings.total = total;
+
+      // add filters
+      if (filters instanceof Object) {
+        Object.keys(filters)
+          .filter((filterType) => filters[filterType])
+          .forEach((filterType) => {
+            const filter = filters["selectTaxonomy"];
+            switch (filterType) {
+              case "selectTaxonomy":
+                filter.forEach((item) => {
+                  addTaxonomy(queryParams, item.taxonomy, item.selected);
+                });
+                break;
+              default:
+                throw Error(`Unsupported filter type ${filterType}`);
+            }
+          });
       }
-      return response;
+      const query = Object.keys(queryParams)
+        .filter((k) => queryParams[k])
+        .map((k) => `${esc(k)}=${queryParams[k]}`)
+        .join("&");
+      return `${url}${query ? `?${query}` : ""}`;
+    };
+
+  $: {
+    if (filtersHaveChanged(filters)) {
+      paginationSettings.active = 1;
+    }
+    fetch(getRequestUrl(params, paginationSettings, taxonomies, filters), {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
     })
-    .then((response) => response.json())
-    .then((data) => (events = data));
+      .then((response) => {
+        if (!response.ok) {
+          throw Error(response.statusText);
+        }
+        return response;
+      })
+      .then((response) => {
+        const total = parseInt(response.headers.get("X-WP-TotalPages"));
+        if (total != paginationSettings.total) {
+          paginationSettings.total = total;
+        }
+        cacheFilters(filters);
+        return response;
+      })
+      .then((response) => response.json())
+      .then((data) => (events = data));
+  }
 </script>
 
+<Filters bind:filters />
 <Pagination
   bind:totalPages={paginationSettings.total}
   bind:activePage={paginationSettings.active} />

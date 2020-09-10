@@ -1,8 +1,7 @@
 <script>
-  import SelectFilter from "./SelectFilter.svelte";
+  import SelectTaxonomyFilter from "./SelectTaxonomyFilter.svelte";
 
-  export let filterSettings = [];
-  export let selectEventCallback = ({ filterSettings: filterSettings }) => {};
+  export let filters = {};
 </script>
 
 <style>
@@ -31,9 +30,14 @@
 </style>
 
 <div class="filters">
-  {#each filterSettings as filterItem}
-    {#if filterItem.type === 'select'}
-      <SelectFilter selectFilterSettings={filterItem} />
+  {#each Object.keys(filters) as filterType}
+    {#if filterType === 'selectTaxonomy'}
+      {#each filters[filterType] as settings}
+        <SelectTaxonomyFilter
+          label={settings.label}
+          taxonomy={settings.taxonomy}
+          bind:selected={settings.selected} />
+      {/each}
     {/if}
   {/each}
 </div>
