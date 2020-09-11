@@ -66,11 +66,11 @@
   <label for="select-{taxonomy}">{label}</label>
   <div class="select">
     <select id="select-{taxonomy}" bind:value={selected}>
-      <option style="color:#aaa" value="" selected={!selected}>
-        --- Alle ---
-      </option>
+      <option style="color:#aaa" value="">--- Alle ---</option>
       {#each values as value}
-        <option value={value.slug}>{value.name}</option>
+        {#if value && value.slug && value.name}
+          <option value={value.slug}>{value.name}</option>
+        {/if}
       {/each}
     </select>
   </div>
