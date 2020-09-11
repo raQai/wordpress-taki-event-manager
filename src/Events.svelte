@@ -137,3 +137,6 @@
 {#each events as event}
   <EventItem {event} />
 {/each}
+<Pagination
+  bind:totalPages={paginationSettings.total}
+  bind:activePage={paginationSettings.active} />
