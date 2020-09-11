@@ -90,7 +90,3 @@
     (!isToday(today, startDate, endDate) &&
       isBetween(today, startDate, endDate));
 </script>
-
-<script>
-  import { log } from "console";
-</script>
