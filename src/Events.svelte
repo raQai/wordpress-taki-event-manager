@@ -56,7 +56,7 @@
     filters = []
   ) => {
     const esc = encodeURIComponent,
-      url = `${apiUrl}biws__events`,
+      url = `${apiUrl}biws-events`,
       queryParams = [];
     queryParams["posts_per_page"] = perPage;
     queryParams["paged"] = active;

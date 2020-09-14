@@ -316,7 +316,7 @@ function events_sort_callback($event, $other)
     return 0;
 };
 
-CustomPostTypeBuilder::create("biws__events")
+CustomPostTypeBuilder::create("biws-events")
     ->args($events_args)
     ->addTaxonomy($category_taxonomy)
     ->addTaxonomy($region_taxonomy)
@@ -326,7 +326,7 @@ CustomPostTypeBuilder::create("biws__events")
     ->unsetColumns('date')
     ->setRestRoute(
         'biws/v1',
-        'biws__events',
+        'biws-events',
         $events_rest_params,
         '\\' . __NAMESPACE__ . '\\events_sort_callback'
     )

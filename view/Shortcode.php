@@ -20,7 +20,7 @@ add_action('init', function () {
     }
 });
 
-add_shortcode('biws__events', function ($atts) {
+add_shortcode('biws-events', function ($atts) {
     wp_enqueue_style('biws-event-list-css');
     wp_enqueue_script('biws-event-list-js');
 
