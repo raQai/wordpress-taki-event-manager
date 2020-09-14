@@ -39,22 +39,25 @@
   const apiUrl = __eventsApp.env.API_URL;
   let events = [];
   let paginationSettings = {};
-  let filtersCache = {};
+  let cache = {};
 
-  const cacheFilters = (filter) =>
-      (filtersCache = JSON.parse(JSON.stringify(filter))),
-    filtersHaveChanged = (filter) =>
-      JSON.stringify(filter) !== JSON.stringify(filtersCache),
+  const cacheObject = (key, obj) => {
+      if (!key || !obj) {
+        return;
+      }
+      cache[key] = JSON.stringify(obj);
+    },
+    cacheHasChanged = (key, obj) => {
+      return JSON.stringify(obj) !== cache[key];
+    },
     addTaxonomy = (obj, taxonomy, values) => {
       if (!values) {
         return;
       }
-      if (typeof values === "string") {
-        return (obj[taxonomy] = values);
-      }
-      if (values.hasOwnProperty("length")) {
+      if (Array.isArray(values)) {
         return (obj[taxonomy] = values.join(","));
       }
+      return (obj[taxonomy] = values.toString());
     },
     getRequestUrl = (
       { perPage = -1 } = {},
@@ -101,10 +104,16 @@
       return `${url}${query ? `?${query}` : ""}`;
     };
 
-  $: {
-    if (filtersHaveChanged(filters)) {
+  $: if (
+    cacheHasChanged("pagination", paginationSettings) ||
+    cacheHasChanged("filters", filters)
+  ) {
+    if (cacheHasChanged("filters", filters)) {
       paginationSettings.active = 1;
     }
+    cacheObject("pagination", paginationSettings);
+    cacheObject("filters", filters);
+
     fetch(getRequestUrl(params, paginationSettings, taxonomies, filters), {
       headers: {
         "Content-Type": "application/json",
@@ -113,7 +122,7 @@
     })
       .then((response) => {
         if (!response.ok) {
-          throw Error(response.statusText);
+          return Promise.reject(Error(response.statusText));
         }
         return response;
       })
@@ -122,11 +131,14 @@
         if (total != paginationSettings.total) {
           paginationSettings.total = total;
         }
-        cacheFilters(filters);
         return response;
       })
       .then((response) => response.json())
-      .then((data) => (events = data));
+      .then((data) => (events = data))
+      .catch((error) => {
+        events = [];
+        paginationSettings.total = 1;
+      });
   }
 </script>
 
@@ -134,6 +146,9 @@
 <Pagination
   bind:totalPages={paginationSettings.total}
   bind:activePage={paginationSettings.active} />
+{#if !Array.isArray(events) || !events.length}
+  <p>Keine Veranstaltungen angekündigt.</p>
+{/if}
 {#each events as event}
   <EventItem {event} />
 {/each}
