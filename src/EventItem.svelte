@@ -76,7 +76,6 @@
     --taki-grey0: #fafafa;
     --taki-grey1: #eee;
     --taki-grey2: #e0e0e0;
-    --taki-media-break-point-0: 500px;
   }
 
   .divider {
