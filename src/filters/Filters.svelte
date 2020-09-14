@@ -1,6 +1,5 @@
 <script>
-  import SelectTaxonomyFilter from "./SelectTaxonomyFilter.svelte";
-
+  import SelectFilter from "./SelectFilter.svelte";
   export let filters = {};
 </script>
 
@@ -33,9 +32,10 @@
   {#each Object.keys(filters) as filterType}
     {#if filterType === 'selectTaxonomy'}
       {#each filters[filterType] as settings}
-        <SelectTaxonomyFilter
+        <SelectFilter
+          id={settings.id}
           label={settings.label}
-          taxonomy={settings.taxonomy}
+          options={settings.options}
           bind:selected={settings.selected} />
       {/each}
     {/if}

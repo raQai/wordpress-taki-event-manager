@@ -5,7 +5,7 @@
     getStartToEndTimeString,
     isOngoing,
     isToday,
-  } from "./DateTimeUtils.svelte";
+  } from "./modules/DateTimeUtils.mjs";
   export let event;
   const getDates = (event) => {
       if (!event.biws__datetime_meta) {

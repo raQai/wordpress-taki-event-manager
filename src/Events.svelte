@@ -29,97 +29,74 @@
 
 <script>
   import { onMount } from "svelte";
+
+  import Cache from "./modules/Cache.mjs";
+  import TaxonomyUtils from "./modules/TaxonomyUtils.mjs";
+  import FilterUtils from "./modules/FilterUtils.mjs";
+
   import EventItem from "./EventItem.svelte";
-  import Pagination from "./listoptions/Pagination.svelte";
-  import Filters from "./listoptions/filters/Filters.svelte";
+  import Pagination from "./pagination/Pagination.svelte";
+  import Filters from "./filters/Filters.svelte";
+
   export let params = { perPage: -1 };
   export let taxonomies = {};
   export let filters = {};
 
   const apiUrl = __eventsApp.env.API_URL;
+
   let events = [];
+  let filterSettings = {};
   let paginationSettings = {};
-  let cache = {};
+  let cache = new Cache();
 
-  const cacheObject = (key, obj) => {
-      if (!key || !obj) {
-        return;
-      }
-      cache[key] = JSON.stringify(obj);
-    },
-    cacheHasChanged = (key, obj) => {
-      return JSON.stringify(obj) !== cache[key];
-    },
-    addTaxonomy = (obj, taxonomy, values) => {
-      if (!values) {
-        return;
-      }
-      if (Array.isArray(values)) {
-        return (obj[taxonomy] = values.join(","));
-      }
-      return (obj[taxonomy] = values.toString());
-    },
-    getRequestUrl = (
-      { perPage = -1 } = {},
-      { active = -1 } = {},
-      taxonomies = {},
-      filters = {}
-    ) => {
-      const esc = encodeURIComponent,
-        url = `${apiUrl}biws__events`,
-        queryParams = [];
-      queryParams["posts_per_page"] = perPage;
-      queryParams["paged"] = active;
+  const getRequestUrl = (
+    { perPage = -1 } = {},
+    { active = -1 } = {},
+    taxonomies = {},
+    filters = []
+  ) => {
+    const esc = encodeURIComponent,
+      url = `${apiUrl}biws__events`,
+      queryParams = [];
+    queryParams["posts_per_page"] = perPage;
+    queryParams["paged"] = active;
 
-      // add taxonomies
-      if (taxonomies instanceof Object) {
-        Object.keys(taxonomies)
-          .filter((taxonomy) => taxonomies[taxonomy])
-          .forEach((taxonomy) =>
-            addTaxonomy(queryParams, taxonomy, taxonomies[taxonomy])
-          );
-      }
+    // add taxonomies to parameters
+    Object.assign(queryParams, TaxonomyUtils.asQueryParams(taxonomies));
 
-      // add filters
-      if (filters instanceof Object) {
-        Object.keys(filters)
-          .filter((filterType) => filters[filterType])
-          .forEach((filterType) => {
-            const filter = filters["selectTaxonomy"];
-            switch (filterType) {
-              case "selectTaxonomy":
-                filter.forEach((item) => {
-                  addTaxonomy(queryParams, item.taxonomy, item.selected);
-                });
-                break;
-              default:
-                throw Error(`Unsupported filter type ${filterType}`);
-            }
-          });
-      }
-      const query = Object.keys(queryParams)
-        .filter((k) => queryParams[k])
-        .map((k) => `${esc(k)}=${queryParams[k]}`)
-        .join("&");
-      return `${url}${query ? `?${query}` : ""}`;
-    };
+    // add filters to parameters
+    Object.assign(queryParams, FilterUtils.asQueryParams(filters));
+
+    const query = Object.keys(queryParams)
+      .filter((k) => queryParams[k])
+      .map((k) => `${esc(k)}=${queryParams[k]}`)
+      .join("&");
+    return `${url}${query ? `?${query}` : ""}`;
+  };
+
+  onMount(() => {
+    filterSettings = FilterUtils.deserialize(filters);
+  });
 
   $: if (
-    cacheHasChanged("pagination", paginationSettings) ||
-    cacheHasChanged("filters", filters)
+    cache.hasChanged("pagination", paginationSettings) ||
+    cache.hasChanged("filters", filterSettings)
   ) {
-    if (cacheHasChanged("filters", filters)) {
+    if (cache.hasChanged("filters", filterSettings)) {
       paginationSettings.active = 1;
+      cache.put("pagination", paginationSettings);
     }
-    cacheObject("pagination", paginationSettings);
-    cacheObject("filters", filters);
+    cache.put("filters", filterSettings);
 
-    fetch(getRequestUrl(params, paginationSettings, taxonomies, filters), {
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-    })
+    fetch(
+      getRequestUrl(params, paginationSettings, taxonomies, filterSettings),
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      }
+    )
       .then((response) => {
         if (!response.ok) {
           return Promise.reject(Error(response.statusText));
@@ -127,10 +104,10 @@
         return response;
       })
       .then((response) => {
-        const total = parseInt(response.headers.get("X-WP-TotalPages"));
-        if (total != paginationSettings.total) {
-          paginationSettings.total = total;
-        }
+        paginationSettings.total = parseInt(
+          response.headers.get("X-WP-TotalPages")
+        );
+        cache.put("pagination", paginationSettings);
         return response;
       })
       .then((response) => response.json())
@@ -138,11 +115,13 @@
       .catch((error) => {
         events = [];
         paginationSettings.total = 1;
+        cache.put("pagination", paginationSettings);
+        cache.put("filters", filterSettings);
       });
   }
 </script>
 
-<Filters bind:filters />
+<Filters bind:filters={filterSettings} />
 <Pagination
   bind:totalPages={paginationSettings.total}
   bind:activePage={paginationSettings.active} />
