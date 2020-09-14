@@ -9,9 +9,10 @@
   export let activePage = defaults.active; // current active page
   export let maxItems = defaults.maxItems; // maximum pagination items to display
 
-  const getPagesArray = (numPages) => {
-      return Array.from(Array(parseInt(numPages)), (_, i) => i + 1);
-    },
+  const getPagesArray = (numPages) =>
+      !numPages || numPages < 1
+        ? []
+        : Array.from(Array(parseInt(numPages)), (_, i) => i + 1),
     middleValue = (a, b, c) =>
       a + b + c - Math.min(a, b, c) - Math.max(a, b, c);
 
@@ -181,7 +182,7 @@
   }
 </style>
 
-{#if pages && pages.length > 1}
+{#if Array.isArray(pages) && pages.length > 1}
   <div class="pagination">
     <!--simplified mobile pagination-->
     <ul class="mobile">
