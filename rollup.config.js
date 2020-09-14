@@ -36,7 +36,7 @@ export default {
 	output: {
 		sourcemap: true,
 		format: 'iife',
-		name: 'app',
+		name: 'events_list',
 		file: 'public/build/bundle.js'
 	},
 	plugins: [
