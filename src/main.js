@@ -1,8 +1,7 @@
-import Events, { addTaxonomySelectFilter } from './Events.svelte';
+import Events from './Events.svelte';
 
 /*
 example usage
-*/
 const app = new Events({
 	target: document.querySelector("#biws__events-list"),
 	props: {
@@ -23,5 +22,6 @@ const app = new Events({
 		}
 	}
 });
+*/
 
-export default app;
+export default Events;
