@@ -10,7 +10,7 @@
  * Plugin Name: TaKi Event Manager
  * Description: Erstellen und Darstellen von Events für Tageskinder-Heilbronn. Benötigt BIWS CPT Builder.
  * Author: Patrick Bogdan
- * Version: 1.0.0
+ * Version: 1.0.0-beta2
  * License: GPL v2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  */

@@ -10,7 +10,7 @@ add_action('init', function () {
             'biws-event-list-js',
             BIWS_TaKiEventManager__PLUGIN_DIR_URL . 'public/build/bundle.js',
             array(),
-            '1.0.0',
+            '1.0.1',
             true
         );
         wp_register_style(

@@ -5,6 +5,7 @@ import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
 import replace from '@rollup/plugin-replace';
 import dotenv from 'dotenv';
+import babel from '@rollup/plugin-babel';
 
 dotenv.config();
 
@@ -75,6 +76,13 @@ export default {
 		// Watch the `public` directory and refresh the
 		// browser on changes when not in production
 		!production && livereload('public'),
+
+		production && babel({
+			exclude: [
+				/\/core-js\//,
+			],
+			extensions: ['.svelte', '.js', '.jsx', '.es6', '.es', '.mjs', '.ts']
+		}),
 
 		// If we're building for production (npm run build
 		// instead of npm run dev), minify

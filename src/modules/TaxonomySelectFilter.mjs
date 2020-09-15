@@ -1,11 +1,6 @@
 import TaxonomyUtils from "./TaxonomyUtils.mjs";
 
 export default class TaxonomySelectFilter {
-    id;
-    label;
-    selected;
-    options = [];
-
     constructor({ taxonomy, label, selected }) {
         if (!taxonomy && typeof taxonomy !== "string") {
             throw new Error(
@@ -23,7 +18,7 @@ export default class TaxonomySelectFilter {
         this.options = this.fetchOptions(taxonomy)
     }
 
-    fetchOptions = async (id) => {
+    async fetchOptions(id) {
         const options = [];
         await TaxonomyUtils.fetch(id)
             .then((data) => {
