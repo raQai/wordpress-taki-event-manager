@@ -30,9 +30,9 @@
 <script>
   import { onMount } from "svelte";
 
-  import Cache from "./modules/Cache.mjs";
-  import TaxonomyUtils from "./modules/TaxonomyUtils.mjs";
-  import FilterUtils from "./modules/FilterUtils.mjs";
+  import Cache from "../modules/Cache.mjs";
+  import TaxonomyUtils from "../modules/TaxonomyUtils.mjs";
+  import FilterUtils from "../modules/FilterUtils.mjs";
 
   import EventItem from "./EventItem.svelte";
   import Pagination from "./pagination/Pagination.svelte";
