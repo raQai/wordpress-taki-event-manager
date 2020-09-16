@@ -83,7 +83,7 @@
     background-color: var(--taki-grey2);
   }
 
-  .item {
+  .event-item {
     word-break: break-word;
     border-radius: var(--taki-border-radius);
     margin: 0.5rem 0 1rem 0;
@@ -98,14 +98,14 @@
     transition: box-shadow 0.25s, -webkit-box-shadow 0.25s;
   }
 
-  .item:hover {
+  .event-item:hover {
     -webkit-box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.2),
       0 6px 20px 0 rgba(0, 0, 0, 0.19);
     box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.2),
       0 6px 20px 0 rgba(0, 0, 0, 0.19);
   }
 
-  .item > * {
+  .event-item > * {
     padding: 1rem 4rem 2rem;
   }
 
@@ -212,7 +212,7 @@
   }
 
   @media (min-width: 900px) {
-    .item > * {
+    .event-item > * {
       display: flex;
     }
 
@@ -245,7 +245,7 @@
   }
 </style>
 
-<div class="item">
+<div class="event-item">
   <div class="content">
     <div class="spacer">
       <div class="date_container">
