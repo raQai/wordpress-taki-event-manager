@@ -34,6 +34,7 @@
   import TaxonomyUtils from "../modules/TaxonomyUtils.mjs";
   import FilterUtils from "../modules/FilterUtils.mjs";
 
+  import Loader from "./loader/Loader.svelte";
   import EventItem from "./EventItem.svelte";
   import Pagination from "./pagination/Pagination.svelte";
   import Filters from "./filters/Filters.svelte";
@@ -48,6 +49,7 @@
   let filterSettings = {};
   let paginationSettings = {};
   let cache = new Cache();
+  let loading = true;
 
   const getRequestUrl = (
     { perPage = -1 } = {},
@@ -82,6 +84,7 @@
     cache.hasChanged("pagination", paginationSettings) ||
     cache.hasChanged("filters", filterSettings)
   ) {
+    loading = true;
     if (cache.hasChanged("filters", filterSettings)) {
       paginationSettings.active = 1;
       cache.put("pagination", paginationSettings);
@@ -111,12 +114,16 @@
         return response;
       })
       .then((response) => response.json())
-      .then((data) => (events = data))
+      .then((data) => {
+        events = data;
+        loading = false;
+      })
       .catch((error) => {
         events = [];
         paginationSettings.total = 1;
         cache.put("pagination", paginationSettings);
         cache.put("filters", filterSettings);
+        loading = false;
       });
   }
 </script>
@@ -125,12 +132,14 @@
 <Pagination
   bind:totalPages={paginationSettings.total}
   bind:activePage={paginationSettings.active} />
+<Loader {loading} />
 {#if !Array.isArray(events) || !events.length}
   <p>Keine Veranstaltungen angekündigt.</p>
 {/if}
 {#each events as event}
   <EventItem {event} />
 {/each}
+<Loader {loading} />
 <Pagination
   bind:totalPages={paginationSettings.total}
   bind:activePage={paginationSettings.active} />
