@@ -16,7 +16,7 @@
     white-space: nowrap;
     font-size: 1.4rem;
     line-height: 3.2rem;
-    margin-right: -1rem;
+    margin: 0 -1rem 0 0;
   }
   select {
     width: 100%;
