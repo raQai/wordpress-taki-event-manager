@@ -187,6 +187,27 @@
     padding-right: 1rem;
   }
 
+  .tags {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+
+  .tag {
+    color: #fff;
+    font-family: "Inter var", -apple-system, BlinkMacSystemFont,
+      "Helvetica Neue", Helvetica, sans-serif;
+    font-size: 0.7em;
+    margin-left: 0.5em;
+    height: 2.3em;
+    padding: .5em 1.2em;
+    border-radius: 1.15em;
+    -webkit-box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+      0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+      0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
+  }
+
   .footer {
     background-color: var(--taki-grey0);
     border-top: 1px solid var(--taki-grey1);
@@ -340,6 +361,15 @@
           </div>
         {/if}
       </div>
+      {#if event.biws__tags_tax}
+        <div class="tags">
+          {#each event.biws__tags_tax as tag}
+            <span
+              class="tag {tag.slug}"
+              style="background-color:{tag.color}">{tag.name}</span>
+          {/each}
+        </div>
+      {/if}
     </div>
   </div>
   <div class="footer">

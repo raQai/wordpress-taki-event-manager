@@ -10,7 +10,7 @@
  * Plugin Name: TaKi Event Manager
  * Description: Erstellen und Darstellen von Events für Tageskinder-Heilbronn. Benötigt BIWS CPT Builder.
  * Author: Patrick Bogdan
- * Version: 1.0.0-beta2
+ * Version: 1.0.0-beta3
  * License: GPL v2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  */
@@ -207,6 +207,32 @@ $datetime_meta_box = MetaBoxBuilder::create('biws__datetime_meta')
     ->addField(FieldType::TIME, 'datetime__end_time', 'Uhrzeit bis', true)
     ->build();
 
+$tags_taxonomy = TaxonomyBuilder::create('biws__tags_tax')
+    ->args(
+        array(
+            'hierarchical' => true,
+            'labels' => array(
+                'name' => 'Tags',
+                'singular_name' => 'Tag',
+                'search_items' =>  'Tag suchen',
+                'all_items' => 'Alle Tags',
+                'parent_item' => 'Übergeordneter Tag',
+                'parent_item_colon' => 'Übergeordneter Tag:',
+                'edit_item' => 'Tag bearbeiten',
+                'update_item' => 'Tag aktualisieren',
+                'add_new_item' => 'Neuen Tag hinzufügen',
+                'new_item_name' => 'Neuer Tagname',
+            ),
+            'show_ui' => true,
+            'show_admin_column' => true,
+            'public' => false,
+            'show_tag_cloud' => false,
+            'show_in_rest' => true,
+        )
+    )
+    ->addField(FieldType::COLOR, 'color', 'Farbe', false, true, '#dddddd')
+    ->build();
+
 $date = new DateTime('now', new DateTimeZone('Europe/Berlin'));
 $today_date = $date->format('Y-m-d');
 $now_time = $date->format('H:m');
@@ -322,6 +348,7 @@ CustomPostTypeBuilder::create("biws-events")
     ->addTaxonomy($region_taxonomy)
     ->addTaxonomy($location_taxonomy)
     ->addTaxonomy($contact_taxonomy)
+    ->addTaxonomy($tags_taxonomy)
     ->addMetaBox($datetime_meta_box)
     ->unsetColumns('date')
     ->setRestRoute(
