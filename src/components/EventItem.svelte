@@ -135,6 +135,7 @@
 
   .title {
     margin-top: 4rem;
+    font-size: 1.7em;
     font-weight: 300;
     color: rgba(0, 0, 0, 0.8);
   }
