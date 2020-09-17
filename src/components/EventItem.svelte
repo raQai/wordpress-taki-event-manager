@@ -274,7 +274,13 @@
       <div class="details_container">
         {#if dates && dates.start}
           <div class="details_item">
-            <svg style="width:3rem;height:2.5rem" viewBox="0 0 24 24">
+            <svg
+              id="{event.slug}-date-icon"
+              aria-labelledby="{event.slug}-date-title {event.slug}-date-desc"
+              style="width:3rem;height:2.5rem"
+              viewBox="0 0 24 24">
+              <title id="{event.slug}-date-title">Start- und Enddatum</title>
+              <desc id="{event.slug}-date-desc">Kalender-Icon</desc>
               <path
                 fill="#888"
                 d="M9,10H7V12H9V10M13,10H11V12H13V10M17,10H15V12H17V10M19,3H18V1H16V3H8V1H6V3H5C3.89,3
@@ -286,7 +292,13 @@
         {/if}
         {#if times && times.start}
           <div class="details_item">
-            <svg style="width:3rem;height:2.5rem" viewBox="0 0 24 24">
+            <svg
+              id="{event.slug}-time-icon"
+              aria-labelledby="{event.slug}-time-title {event.slug}-time-desc"
+              style="width:3rem;height:2.5rem"
+              viewBox="0 0 24 24">
+              <title id="{event.slug}-time-title">Start- und Endzeit</title>
+              <desc id="{event.slug}-time-desc">Uhr-Icon</desc>
               <path
                 fill="#888"
                 d="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0
@@ -299,7 +311,17 @@
         {/if}
         {#if event.biws__location_tax}
           <div class="details_item">
-            <svg style="width:3rem;height:2.5rem" viewBox="0 0 24 24">
+            <svg
+              id="{event.slug}-location-icon"
+              aria-labelledby="{event.slug}-location-title {event.slug}-location-desc"
+              style="width:3rem;height:2.5rem"
+              viewBox="0 0 24 24">
+              <title id="{event.slug}-location-title">
+                Ort der Veranstaltung
+              </title>
+              <desc id="{event.slug}-location-desc">
+                Kartenmarkierungs-Icon
+              </desc>
               <path
                 fill="#888"
                 d="M12,11.5A2.5,2.5 0 0,1 9.5,9A2.5,2.5 0 0,1 12,6.5A2.5,2.5 0 0,1
