@@ -1,13 +1,16 @@
 <?php
 
-namespace BIWS\TaKiEventManager\shortcode;
+namespace BIWS\TaKiEventManager\templates\scripts;
 
-defined('ABSPATH') or die('Nope!');
+use BIWS\TaKiEventManager\views\EventListScriptRenderObject;
 
+if (!($render_object instanceof EventListScriptRenderObject)) {
+    die("Template {$__FILE__} requires EventListScriptRenderObject");
+}
 ?>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const settings = JSON.parse('<?php echo json_encode($script_object); ?>'),
+        const settings = JSON.parse('<?= $render_object->getSettingsJSON() ?>'),
             params = {
                 perPage: 5
             },
