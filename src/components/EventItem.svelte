@@ -8,6 +8,7 @@
     getDates,
     getTimes,
     getLocations,
+    getEntryFee,
     isToday,
     isOngoing,
   } from "../modules/event-utils.mjs";
@@ -22,6 +23,7 @@
   $: locations = getLocations(event);
   $: dates = getDates(event);
   $: times = getTimes(event);
+  $: fee = getEntryFee(event);
   $: ongoing = isOngoing(dates, times);
   $: today = isToday(dates);
 </script>
@@ -293,6 +295,30 @@
                   {/each}
                 </p>
               {/each}
+            </div>
+          </div>
+        {/if}
+        {#if fee}
+          <div class="details_item">
+            <svg
+              id="{event.slug}-fee-icon"
+              aria-labelledby="{event.slug}-fee-title {event.slug}-fee-desc"
+              style="width:3rem;height:2.5rem"
+              viewBox="0 0 24 24">
+              <title id="{event.slug}-fee-title">Teilnahmegebühren</title>
+              <desc id="{event.slug}-fee-desc">Münzen-Icon</desc>
+              <path
+                fill="#888"
+                d="M15,4A8,8 0 0,1 23,12A8,8 0 0,1 15,20A8,8 0 0,1 7,12A8,8 0
+                0,1 15,4M15,18A6,6 0 0,0 21,12A6,6 0 0,0 15,6A6,6 0 0,0 9,12A6,6
+                0 0,0 15,18M3,12C3,14.61 4.67,16.83 7,17.65V19.74C3.55,18.85
+                1,15.73 1,12C1,8.27 3.55,5.15 7,4.26V6.35C4.67,7.17 3,9.39
+                3,12Z" />
+            </svg>
+            <div>
+              <p>
+                {@html fee}
+              </p>
             </div>
           </div>
         {/if}

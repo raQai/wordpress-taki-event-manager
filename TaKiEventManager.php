@@ -285,7 +285,24 @@ $cpt = new CustomPostType(
                     'HH:MM'
                 ),
             )
-        )
+        ),
+        new MetaBox(
+            'biws__fee_meta',
+            'Kosten',
+            array( // fields
+                new SimpleField(
+                    FieldType::NUMBER,
+                    'fee__entry_fee',
+                    'Teilnahmegebühr (in €)'
+                ),
+                new PlaceholderField(
+                    FieldType::TEXT,
+                    'fee__entry_fee_info',
+                    'Zusätzliche Informationen',
+                    'z.B. Mitglieder frei oder nur Eltern'
+                ),
+            )
+        ),
     )
 );
 

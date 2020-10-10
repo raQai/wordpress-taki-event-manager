@@ -178,6 +178,30 @@ export const getLocations = (event) => {
 }
 
 /**
+ * Returns an html string with the fee information.
+ *
+ * @param {object} event A fetched event.
+ *
+ * @return {string} The entry fee html string.
+ */
+export const getEntryFee = (event) => {
+    if (!event.biws__fee_meta) {
+        return;
+    }
+    const meta = event.biws__fee_meta;
+    if (!meta.fee__entry_fee) {
+        return;
+    }
+
+    let fee = `${meta.fee__entry_fee}€`;
+
+    if (meta.fee__entry_fee_info) {
+        fee += ` <i>${meta.fee__entry_fee_info}</i>`
+    }
+
+    return fee;
+}
+/**
  * Determines whether the given start and end dates are today.
  * 
  * @param {Date} start The start date.
