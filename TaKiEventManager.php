@@ -1,18 +1,30 @@
 <?php
 
 /**
- * @package TaKiEventManager
- * @author Patrick Bogdan
+ * TaKi Event Manager plugin
+ *
+ * Copyright Patrick Bogdan. All rights reserved.
+ * See LICENSE.txt for license details.
+ *
+ * Requirements not tested below specified versions.
+ * 
+ * @package   BIWS\TaKiEventManager
+ * @author    Patrick Bogdan
  * @copyright 2020 Patrick Bogdan
- * @license http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License, version 2 or later
+ * @license   https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License, version 3 or later
+ * @since     1.0.0
  *
  * @wordpress-plugin
- * Plugin Name: TaKi Event Manager
- * Description: Erstellen und Darstellen von Events für Tageskinder-Heilbronn. Benötigt BIWS CPT Builder.
- * Author: Patrick Bogdan
- * Version: 1.0.0
- * License: GPL v2 or later
- * License URI: http://www.gnu.org/licenses/gpl-2.0.html
+ * Plugin Name:       TaKi Event Manager
+ * Plugin URI:        https://github.com/raQai/wordpress-taki-event-manager
+ * Description:       Erstellen und Darstellen von Events für Tageskinder-Heilbronn. Benötigt BIWS CPT Builder.
+ * Requires at least: 5.5
+ * Requires PHP:      7.4
+ * Author:            Patrick Bogdan
+ * Author URI:        https://github.com/raQai
+ * Version:           1.0.0
+ * License:           GPL v3 or later
+ * License URI:       https://www.gnu.org/licenses/gpl-3.0.html
  */
 
 namespace BIWS\TaKiEventManager;
@@ -215,7 +227,7 @@ $cpt = new CustomPostType(
                 new SimpleField(FieldType::TEXT, 'street', 'Straße'),
                 new SimpleField(FieldType::TEXT, 'street_nr', 'Hausnummer'),
                 new SimpleField(FieldType::TEXT, 'zip', 'PLZ'),
-                new SimpleField(FieldType::TEXT, 'location', 'Ort'),
+                new SimpleField(FieldType::TEXT, 'town', 'Ort'),
             )
         ),
         new Taxonomy(

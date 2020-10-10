@@ -1,13 +1,29 @@
 <script>
-  export let id; // unique id for the filter to reference to
-  export let label; // label of the filter
-  export let selected; // selected value
-  export let options; // Promise returning object array [{value:<value>, label:<label>},];
+  import Option from "./option.mjs";
 
+  import SelectFilter from "./select-filter.mjs";
+
+  /* SelectFilter */
+  export let selectFilter;
+
+  /* {?Option[]} */
   let optionData;
+  /* {string} */
+  let label;
+  let selected;
 
-  $: if (options) {
-    options.then((opt) => (optionData = opt));
+  $: if (selectFilter.label instanceof Promise) {
+    selectFilter.label.then((result) => (label = result));
+  } else {
+    label = selectFilter.label;
+  }
+
+  $: if (selectFilter && selectFilter.options) {
+    selectFilter.options.then((options) => (optionData = options));
+  }
+
+  $: if (selectFilter) {
+    selectFilter.select(selected);
   }
 </script>
 
@@ -35,11 +51,11 @@
 </style>
 
 {#if Array.isArray(optionData) && optionData.length}
-  <label for="select-{id}">{label}</label>
-  <select id="select-{id}" bind:value={selected}>
+  <label for="select-{selectFilter.id}">{label}</label>
+  <select id="select-{selectFilter.id}" bind:value={selected}>
     <option style="color:#999" value="">--- Alle ---</option>
     {#each optionData as option}
-      {#if option && option.value && option.label}
+      {#if option instanceof Option}
         <option value={option.value}>{option.label}</option>
       {/if}
     {/each}

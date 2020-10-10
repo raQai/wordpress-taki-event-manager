@@ -3,24 +3,13 @@ import Events from './components/Events.svelte';
 /*
 example usage
 const app = new Events({
-	target: document.querySelector("#biws__events-list"),
-	props: {
-		params: {
-			perPage: 5,
-		},
-		taxonomies: {
-			biws__cat_tax: [],
-		},
-		filters: {
-			selectTaxonomy: [
-				{
-					label: "Region",
-					taxonomy: "biws__region_tax",
-					selected: "",
-				}
-			]
-		}
-	}
+    target: document.querySelector("#biws__events-list"),
+    props: {
+        params: {
+            posts_per_page: 5,
+        },
+        filters: ["biws__region_tax"]
+    }
 });
 */
 

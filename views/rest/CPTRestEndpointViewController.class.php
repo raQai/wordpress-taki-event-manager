@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * Copyright Patrick Bogdan. All rights reserved.
+ * See LICENSE.txt for license details.
+ *
+ * @author     Patrick Bogdan
+ * @copyright  2020 Patrick Bogdan
+ * @license    https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License, version 3 or later
+ */
+
 namespace BIWS\TaKiEventManager\views\rest;
 
 use BIWS\CPTBuilder\models\CustomPostType;
@@ -10,24 +19,46 @@ use WP_Query;
 use WP_REST_Request;
 use WP_REST_Response;
 
+/**
+ * Custom post type rest endpoint view controller implementation
+ *
+ * @since      1.0.0
+ *
+ * @package    BIWS\TaKiEventManager\views
+ * @subpackage rest
+ */
 class CPTRestEndpointViewController extends AbstractRestEndpointViewController
 {
+    /**
+     * @since 1.0.0
+     * @access private
+     * 
+     * @var CustomPostType $cpt The referenced custom post type.
+     */
     private CustomPostType $cpt;
 
     /**
-     * @param int $posts_per_page derived by request params['posts_per_page']
-     *
-     * @see this::prepareQuery()
+     * @since 1.0.0
+     * @access private
+     * 
+     * @var int $posts_per_page derived by request params['posts_per_page'].
      */
     private int $posts_per_page = -1;
 
     /**
-     * @param int $paged derived by request params['paged']
-     *
-     * @see this::prepareQuery()
+     * @since 1.0.0
+     * @access private
+     * 
+     * @var int $paged derived by request params['paged']
      */
     private int $paged = -1;
 
+    /**
+     * @since 1.0.0
+     * 
+     * @param CustomPostType $cpt   The custom post type this is referenced to.
+     * @param RestProps      $props The rest props for this view.
+     */
     public function __construct(CustomPostType $cpt, RestProps $props)
     {
         parent::__construct($props);
@@ -39,6 +70,9 @@ class CPTRestEndpointViewController extends AbstractRestEndpointViewController
      * 
      * Allows to prepare the query based on the classes properties and the given
      * $request data.
+     * 
+     * @since 1.0.0
+     * @access protected
      * 
      * @param WP_REST_Request $request The passed in request data.
      *
@@ -69,6 +103,10 @@ class CPTRestEndpointViewController extends AbstractRestEndpointViewController
      * Collects response data
      * 
      * Collects data based on the given $query.
+     * 
+     * @since 1.0.0
+     * @access protected
+     *
      * @param WP_Query|null $query The query to process
      *
      * @return array|null|WP_Error The collected data,
@@ -136,13 +174,16 @@ class CPTRestEndpointViewController extends AbstractRestEndpointViewController
      * Prepares the rest response used by the view and handles errors
      * accordingly.
      *
+     * @since 1.0.0
+     * @access protected
+     * 
+     * @see self::collectData()
+     *
      * @param WP_Query|null       $query The $query used to query the data.
      * @param array|null|WP_Error $data  The collected data or
      *                                   null|WP_Error if there was an error.
      * @return WP_REST_Response|WP_Error WP_Rest_response on success,
      *                                   WP_Error otherwise
-     *
-     * @see this::collectData()
      */
     protected function prepareResponse($query, $data)
     {
@@ -189,15 +230,18 @@ class CPTRestEndpointViewController extends AbstractRestEndpointViewController
      * Post processes the collected $data
      * 
      * Post processes the collected $data by sorting it with the provided
-     * sorting method this::compare() and slicing the array data to only display
+     * sorting method self::compare() and slicing the array data to only display
      * the based on the pagination settings specified posts.
+     *
+     * @since 1.0.0
+     * @access private
+     * 
+     * @see self::collectData()
+     * @see self::compare()
      * 
      * @param array $data The collected data
      *
      * @return array The post processed data
-     *
-     * @see this::collectData()
-     * @see this::compare()
      */
     private function postProcessData(array $data): array
     {
@@ -227,7 +271,11 @@ class CPTRestEndpointViewController extends AbstractRestEndpointViewController
     /**
      * Helper method to calculate the num pages after post processing the $data
      *
+     * @since 1.0.0
+     * @access private
+     * 
      * @param WP_Query $query The query used to collect the data.
+     *
      * @return int 1 if posts_per_page was <= 0 indicating no pagination,
      *             the calculated number of pages otherwise.
      */
@@ -243,14 +291,17 @@ class CPTRestEndpointViewController extends AbstractRestEndpointViewController
 
     /**
      * Helper method to calculate the num posts after post processing the $data
+     * 
+     * @since 1.0.0
+     * @access private
+     *
+     * @see self::numPages()
      *
      * @param WP_Query $query    The query used to collect the data.
      * @param int      $numPages The post processed num pages
      *
      * @return int 1 if posts_per_page was <= 0 indicating no pagination,
      *             the calculated number of pages otherwise.
-     *
-     * @see this::numPages()
      */
     private function numPosts(WP_Query $query, int $numPages)
     {
@@ -269,6 +320,9 @@ class CPTRestEndpointViewController extends AbstractRestEndpointViewController
 
     /**
      * Builds the meta_query parameters for the post query
+     * 
+     * @since 1.0.0
+     * @access private
      * 
      * @return array to be used as the querys 'meta_query' parameter value
      */
@@ -360,6 +414,8 @@ class CPTRestEndpointViewController extends AbstractRestEndpointViewController
      * - if the start time exists, second order by start time
      * - if the end time exists, third order by end time
      * - if the end date exists, last order by end date
+     * 
+     * @since 1.0.0
      *
      * @return int 0 if $event and $other have the same order
      *             -1 if $event should be before $other

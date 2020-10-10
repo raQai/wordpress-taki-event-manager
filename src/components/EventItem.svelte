@@ -3,89 +3,38 @@
     getShortMonthName,
     getStartToEndDateString,
     getStartToEndTimeString,
-    isOngoing,
+  } from "../modules/date-time-utils.mjs";
+  import {
+    getDates,
+    getTimes,
+    getLocations,
     isToday,
-  } from "../modules/DateTimeUtils.mjs";
+    isOngoing,
+  } from "../modules/event-utils.mjs";
+
   export let event;
-  const getDates = (event) => {
-      if (!event.biws__datetime_meta) {
-        return {};
-      }
+  const lazyMail = async (node, data) => {
+    setTimeout(() => {
+      node.setAttribute("href", data.href);
+    }, 2500);
+  };
 
-      const startDate = event.biws__datetime_meta.datetime__start_date;
-      const endDate = event.biws__datetime_meta.datetime__end_date;
-
-      return {
-        start: startDate ? new Date(Date.parse(startDate)) : undefined,
-        end: endDate ? new Date(Date.parse(endDate)) : undefined,
-        today: new Date(Date.parse(new Date().toISOString().substr(0, 10))),
-      };
-    },
-    getTimes = (event) => {
-      if (!event.biws__datetime_meta) {
-        return {};
-      }
-
-      const today = new Date();
-      const startTime = event.biws__datetime_meta.datetime__start_time;
-      const endTime = event.biws__datetime_meta.datetime__end_time;
-      const nowTime = `${today.getHours()}:${today.getMinutes()}`;
-
-      return {
-        start: startTime,
-        end: endTime,
-        now: nowTime,
-      };
-    },
-    getLocations = (location) => {
-      let output = [];
-      output.push(location.name);
-      output.push(location.building);
-      output.push(
-        [location.street, location.street_nr].filter(Boolean).join(" ")
-      );
-      output.push([location.zip, location.location].filter(Boolean).join(" "));
-      return output.filter(Boolean).join(", $").split("$");
-    },
-    lazyMail = async (node, data) => {
-      setTimeout(() => {
-        node.setAttribute("href", data.href);
-      }, 2500);
-    };
-
+  $: locations = getLocations(event);
   $: dates = getDates(event);
   $: times = getTimes(event);
-  $: ongoing =
-    dates &&
-    times &&
-    isOngoing(
-      dates.today,
-      dates.start,
-      dates.end,
-      times.now,
-      times.start,
-      times.end
-    );
-  $: today = dates && isToday(dates.today, dates.start, dates.end);
+  $: ongoing = isOngoing(dates, times);
+  $: today = isToday(dates);
 </script>
 
 <style>
-  :root {
-    --taki-border-radius: 3px;
-    --taki-red: #db3b0f;
-    --taki-grey0: #fafafa;
-    --taki-grey1: #eee;
-    --taki-grey2: #e0e0e0;
-  }
-
   .divider {
     height: 1px;
-    background-color: var(--taki-grey2);
+    background-color: #e0e0e0;
   }
 
   .event-item {
     word-break: break-word;
-    border-radius: var(--taki-border-radius);
+    border-radius: 3px;
     margin: 0.5rem 0 1rem 0;
     -webkit-box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
       0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
@@ -105,8 +54,8 @@
   }
 
   .date_container {
-    background-color: var(--taki-red);
-    border-radius: 0 var(--taki-border-radius) var(--taki-border-radius) 0;
+    background-color: #db3b0f;
+    border-radius: 0 3px 3px 0;
     -webkit-box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
       0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
@@ -189,7 +138,7 @@
     font-size: 0.7em;
     margin-left: 0.5em;
     height: 2.3em;
-    padding: .5em 1.2em;
+    padding: 0.5em 1.2em;
     border-radius: 1.15em;
     -webkit-box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
       0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
@@ -198,9 +147,9 @@
   }
 
   .footer {
-    background-color: var(--taki-grey0);
-    border-top: 1px solid var(--taki-grey1);
-    border-radius: 0 0 var(--taki-border-radius) var(--taki-border-radius);
+    background-color: #fafafa;
+    border-top: 1px solid #eee;
+    border-radius: 0 0 3px 3px;
   }
 
   .contacts_container {
@@ -261,9 +210,7 @@
       <div class="date_container">
         {#if dates && dates.start instanceof Date && !today && !ongoing}
           <span class="date_day">{dates.start.getDate()}</span>
-          <span class="date_month">
-            {getShortMonthName(dates.start.getMonth())}
-          </span>
+          <span class="date_month"> {getShortMonthName(dates.start)} </span>
         {:else if ongoing}
           <span class="date_planning">Laufend</span>
         {:else if today}
@@ -319,7 +266,7 @@
             <p>{getStartToEndTimeString(times.start, times.end)}</p>
           </div>
         {/if}
-        {#if event.biws__location_tax}
+        {#if Array.isArray(locations) && locations.length}
           <div class="details_item">
             <svg
               id="{event.slug}-location-icon"
@@ -339,10 +286,10 @@
               12,22C12,22 19,14.25 19,9A7,7 0 0,0 12,2Z" />
             </svg>
             <div>
-              {#each event.biws__location_tax as location}
+              {#each locations as location}
                 <p>
-                  {#each getLocations(location) as elem}
-                    <span>{elem}</span>
+                  {#each location.elements as locationElement}
+                    <span>{locationElement}</span>
                   {/each}
                 </p>
               {/each}

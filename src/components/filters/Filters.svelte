@@ -1,6 +1,7 @@
 <script>
   import SelectFilter from "./SelectFilter.svelte";
-  export let filters = {};
+  import SelectFilterClass from "./select-filter.mjs";
+  export let filters = [];
 </script>
 
 <style>
@@ -28,15 +29,9 @@
 </style>
 
 <div class="filters">
-  {#each Object.keys(filters) as filterType}
-    {#if filterType === 'selectTaxonomy'}
-      {#each filters[filterType] as settings}
-        <SelectFilter
-          id={settings.id}
-          label={settings.label}
-          options={settings.options}
-          bind:selected={settings.selected} />
-      {/each}
+  {#each filters as filter}
+    {#if filter instanceof SelectFilterClass}
+      <SelectFilter bind:selectFilter={filter} />
     {/if}
   {/each}
 </div>

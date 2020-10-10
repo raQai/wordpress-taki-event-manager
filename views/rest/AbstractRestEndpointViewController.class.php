@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * Copyright Patrick Bogdan. All rights reserved.
+ * See LICENSE.txt for license details.
+ *
+ * @author     Patrick Bogdan
+ * @copyright  2020 Patrick Bogdan
+ * @license    https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License, version 3 or later
+ */
+
 namespace BIWS\TaKiEventManager\views\rest;
 
 use BIWS\CPTBuilder\models\fields\FieldType;
@@ -13,24 +22,66 @@ use WP_REST_Response;
 use WP_Term;
 use WP_Term_Query;
 
+/**
+ * Abstract rest endpoint view controller
+ *
+ * @since      1.0.0
+ *
+ * @package    BIWS\TaKiEventManager\views
+ * @subpackage rest
+ *
+ * @abstract
+ */
 abstract class AbstractRestEndpointViewController implements IViewController
 {
+    /**
+     * @since 1.0.0
+     * @access private
+     *
+     * @var RestProps $props The rest props for this view.
+     */
     private RestProps $props;
 
+    /**
+     * @since 1.0.0
+     * 
+     * @param RestProps $props The rest props for this view.
+     */
     public function __construct(RestProps $props)
     {
         $this->props = $props;
     }
 
+
+    /**
+     * init no-op
+     * 
+     * @since 1.0.0
+     */
     public function init(): void
     {
     }
 
+    /**
+     * remove no-op
+     * 
+     * @since 1.0.0
+     */
     public function remove(): void
     {
     }
 
-    public function registerWithCallback(callable $callback)
+    /**
+     * Registers the rest route with a given render callback.
+     *
+     * @see self::$props
+     * @see register_rest_route()
+     * 
+     * @param callable $callback The render callback for the rest route.
+     * 
+     * @link https://developer.wordpress.org/reference/functions/register_rest_route/
+     */
+    public function registerWithCallback(callable $callback): void
     {
         $args = $this->props->getArgs();
         $args['callback'] = $callback;
@@ -43,6 +94,17 @@ abstract class AbstractRestEndpointViewController implements IViewController
     }
 
     /**
+     * Queries the data for the given request and returns the corresponding rest
+     * response.
+     *
+     * @since 1.0.0
+     * 
+     * @see self::prepareQuery()
+     * @see self::collectData()
+     * @see self::prepareResponse()
+     * 
+     * @param WP_REST_Request $request The request to obtain the rest data.
+     *
      * @return WP_REST_Response|WP_Error 
      */
     public function getRestResponse(WP_REST_Request $request)
@@ -59,6 +121,10 @@ abstract class AbstractRestEndpointViewController implements IViewController
      * Allows to prepare the query based on the classes properties and the given
      * $request data.
      * 
+     * @since 1.0.0
+     * @access protected
+     * @abstract
+     *
      * @param WP_REST_Request $request The passed in request data.
      *
      * @return WP_Query|WP_Term_Query|null The query to be processed or null
@@ -70,6 +136,11 @@ abstract class AbstractRestEndpointViewController implements IViewController
      * Collects response data
      * 
      * Collects data based on the given $query.
+     * 
+     * @since 1.0.0
+     * @access protected
+     * @abstract
+     * 
      * @param WP_Query|WP_Term_Query|null $query The query to process
      *
      * @return array|null|WP_Error The collected data,
@@ -83,14 +154,18 @@ abstract class AbstractRestEndpointViewController implements IViewController
      *
      * Prepares the rest response used by the view and handles errors
      * accordingly.
+     * 
+     * @since 1.0.0
+     * @access protected
+     * @abstract
      *
+     * @see self::collectData()
+     * 
      * @param WP_Query|WP_Term_Query|null $query The $query used to query the data.
      * @param array|null|WP_Error         $data  The collected data or
      *                                           null|WP_Error if there was an error.
      * @return WP_REST_Response|WP_Error WP_Rest_response on success,
      *                                   WP_Error otherwise
-     *
-     * @see this::collectData()
      */
     protected abstract function prepareResponse($query, $data);
 
@@ -106,6 +181,9 @@ abstract class AbstractRestEndpointViewController implements IViewController
      *
      * Collects term data for the rest response based on the referenced
      * $taxonmy.
+     *
+     * @since 1.0.0
+     * @access protected
      *
      * @param Taxonomy $taxonomy The Taxonomy the given terms are referenced to.
      * @param WP_Term[] $terms Queried array of WP_Term objects
@@ -136,6 +214,9 @@ abstract class AbstractRestEndpointViewController implements IViewController
      *
      * Collects term data for the rest response based on the referenced
      * $taxonmy.
+     * 
+     * @since 1.0.0
+     * @access private
      *
      * @param Taxonomy $taxonomy The Taxonomy the given terms are referenced to.
      * @param WP_Term $term Queried WP_Term object
@@ -181,11 +262,16 @@ abstract class AbstractRestEndpointViewController implements IViewController
      * Queries term field value
      * 
      * Queries the term metadata for the given $term_id and $field
+     *
+     * @since 1.0.0
+     * @access private
+     * 
      * @param IField $field The term field to query
      * @param int $term_id The term id for which to query the field
+     *
      * @return mixed based on $field->type FieldType
      * 
-     * @see https://developer.wordpress.org/reference/functions/get_term_meta/
+     * @link https://developer.wordpress.org/reference/functions/get_term_meta/
      */
     private function getTermFieldValue(int $term_id, IField $field)
     {
@@ -203,11 +289,14 @@ abstract class AbstractRestEndpointViewController implements IViewController
      *
      * Collects post meta for the rest response based on the referenced
      * $meta_box.
+     * 
+     * @since 1.0.0
+     * @access protected
      *
      * @param MetaBox $meta_box The MetaBox for which to collect the data.
-     * @param int $post_id the post ID for which to query the meta data.
+     * @param int $post_id the post ID for which to query the metadata.
      *
-     * @return array An array with the collected post meta data
+     * @return array An array with the collected post metadata
      */
     protected function collectMetaBoxData(
         MetaBox $meta_box,
@@ -231,11 +320,16 @@ abstract class AbstractRestEndpointViewController implements IViewController
      * Queries term field value
      * 
      * Queries the term metadata for the given $term_id and $field
+     * 
+     * @since 1.0.0
+     * @access private
+     * 
      * @param IField $field The term field to query
      * @param int $post_id The post id for which to query the field
+     * 
      * @return mixed based on $field->type FieldType
      * 
-     * @see https://developer.wordpress.org/reference/functions/get_post_meta/
+     * @link https://developer.wordpress.org/reference/functions/get_post_meta/
      */
     private function getMetaFieldValue(int $post_id, IField $field)
     {

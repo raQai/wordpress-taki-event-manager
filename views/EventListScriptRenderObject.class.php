@@ -1,89 +1,88 @@
 <?php
 
+/**
+ * Copyright Patrick Bogdan. All rights reserved.
+ * See LICENSE.txt for license details.
+ * 
+ * @author     Patrick Bogdan
+ * @copyright  2020 Patrick Bogdan
+ * @license    https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License, version 3 or later
+ */
+
 namespace BIWS\TaKiEventManager\views;
 
 use BIWS\CPTBuilder\views\RenderObject;
 
+/**
+ * Event list script render object implementation
+ *
+ * Extends the RenderObject by adding the necessary values
+ *
+ * @since      1.0.0
+ *
+ * @see RenderObject
+ *
+ * @package    BIWS\TaKiEventManager
+ * @subpackage views
+ */
 class EventListScriptRenderObject extends RenderObject
 {
-    private array $shortcode_atts;
+    /**
+     * The rest query parameters.
+     * 
+     * @since 1.0.0
+     * @access private
+     * 
+     * @var string[] Parameters as key => value pairs.
+     */
+    private array $params = array();
 
-    public function __construct(array $shortcode_atts, string $template)
+    /**
+     * The filters.
+     * 
+     * @since 1.0.0
+     * @access private
+     * 
+     * @var string[] Filters as encoded json strings.
+     */
+    private array $filters = array();
+
+    /**
+     * Constructs the EventListScriptRenderObject and deserializes the given
+     * shortcode $atts to obtain the corresponding values for the script.
+     * 
+     * @since 1.0.0
+     * 
+     * @param string[] $params   The params for the script.
+     * @param string[] $filters  The filters for the script.
+     * @param string   $template The script template path.
+     * 
+     * @link https://developer.wordpress.org/reference/functions/add_shortcode/
+     */
+    public function __construct(array $params, array $filters, string $template)
     {
         parent::__construct($template);
-        $this->shortcode_atts = $shortcode_atts;
-    }
-
-    public function getSettingsJSON(): string
-    {
-        return json_encode($this->deserializeAtts());
+        $this->params = $params;
+        $this->filters = $filters;
     }
 
     /**
-     * Deserializes the provided shortcode attributes as follows
-     *
-     * [shortcode
-     *   <taxonomy_slug>="item,item2,item3" // <default filter>=<filter items>
-     *   filters="<type>=<options>;<type2>=<options2>"]
+     * @since 1.0.0
      * 
-     * example
-     * [shortcode biws__cat_tax="treffpunkt" filters="selectTaxonomy=biws__region_tax"]
-     * 
-     * @return object the for the script deserialized attributes as object,
-     *                ready to be encoded as json
+     * @see self::$params
      */
-    private function deserializeAtts(): object
+    public function getParams(): array
     {
-        $script_object = (object)(array());
+        return $this->params;
+    }
 
-        if (!$this->shortcode_atts) {
-            return $script_object;
-        }
-
-        foreach ($this->shortcode_atts as $key => $value) {
-            if ($key === 'filters') {
-                if (!property_exists($script_object, 'filters')) {
-                    $script_object->filters = array();
-                }
-                $filters = explode(";", $value);
-                foreach ($filters as $filter) {
-                    $filterObject = explode("=", $filter);
-                    if (count($filterObject) !== 2) {
-                        continue;
-                    }
-                    $filterType = $filterObject[0];
-                    $scriptFilterSettings = array();
-                    switch ($filterType) {
-                        case "selectTaxonomy":
-                            $filterSettings = explode(",", $filterObject[1]);
-                            if (!count($filterSettings)) {
-                                break;
-                            }
-                            $scriptFilterSettings['taxonomy'] =
-                                $filterSettings[0];
-                            $taxonomy = get_taxonomy($filterSettings[0]);
-                            if (!$taxonomy) {
-                                break;
-                            }
-                            $labels = get_taxonomy_labels($taxonomy);
-                            $scriptFilterSettings['label'] =
-                                $labels->singular_name;
-
-                            if (count($filterSettings) === 2) {
-                                $scriptFilterSettings['selected'] =
-                                    $filterSettings[1];
-                            }
-
-                            $script_object->filters['selectTaxonomy'][] =
-                                $scriptFilterSettings;
-                            break;
-                    }
-                }
-            } else {
-                $script_object->taxonomies[$key] = explode(",", $value);
-            }
-        }
-
-        return $script_object;
+    /**
+     * @since 1.0.0
+     * 
+     * @see self::$filters
+     */
+    public function getFilters(): array
+    {
+        return $this->filters;
     }
 }
