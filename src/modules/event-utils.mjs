@@ -159,7 +159,7 @@ const deserializeLocation = (location = {}) => {
  * 
  * @see deserializeLocation()
  * 
- * @param {object} event 
+ * @param {object} event A fetched event.
  * 
  * @return {Array} An array containing the location information to be displayed.
  */
