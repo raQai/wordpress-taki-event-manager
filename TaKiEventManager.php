@@ -288,7 +288,7 @@ $cpt = new CustomPostType(
         ),
         new MetaBox(
             'biws__fee_meta',
-            'Kosten',
+            'Gebühren',
             array( // fields
                 new SimpleField(
                     FieldType::NUMBER,
